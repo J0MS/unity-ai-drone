@@ -21,8 +21,11 @@ public class ComportamientoEstados : MonoBehaviour {
 	}
 
 	void FixedUpdate() {
-		if(sensor.Bateria() <= 0)
+		if(sensor.Bateria() <= 0) {
+			// Si se queda sin batería se cae.
+			actuador.Descender();
 			return;
+		}
 
 		percepcionActual = PercibirMundo();
 		estadoActual = TablaDeTransicion(estadoActual, percepcionActual);
@@ -183,6 +186,7 @@ public class ComportamientoEstados : MonoBehaviour {
 	}
 
 	void GiraCompleto(){
+		actuador.fijarAltura();
 		for(int i = 0; i <14; i++){
 			GirarDerecha();
 		}

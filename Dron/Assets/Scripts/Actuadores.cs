@@ -30,11 +30,15 @@ public class Actuadores : MonoBehaviour
     public void Ascender(){
         upForce = 190;
         rb.AddRelativeForce(Vector3.up * upForce);
+        //Se libera la coordenada y para que el dron pueda elevarse.
+        rb.constraints = RigidbodyConstraints.None;
     }
 
     public void Descender(){
         upForce = 10;
         rb.AddRelativeForce(Vector3.up * upForce);
+        //Se libera la coordenada y para que el dron pueda descender.
+        rb.constraints = RigidbodyConstraints.None;
     }
 
     public void Flotar(){
@@ -84,4 +88,10 @@ public class Actuadores : MonoBehaviour
     public void CargarBateria(){
         bateria.Cargar();
     }
+
+    //Se fija la coordenada y para que el dron no se eleve.
+    public void fijarAltura () {
+      rb.constraints = RigidbodyConstraints.FreezePositionY;
+    }
+
 }
