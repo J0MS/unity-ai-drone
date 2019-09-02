@@ -25,4 +25,14 @@ public class Bateria : MonoBehaviour
     public float NivelDeBateria(){
         return bateria;
     }
+
+    public bool BateriaBaja(){
+        if(bateria <= capacidadMaximaBateria/3)
+            return true;
+        return false;
+    }
+
+    public bool BateriaLlena(){
+        return bateria >= capacidadMaximaBateria;
+    }
 }

@@ -7,6 +7,8 @@ public class Actuadores : MonoBehaviour
     private Rigidbody rb; // Componente para simular acciones físicas realistas
     private Bateria bateria; // Componente adicional (script) que representa la batería
     private Sensores sensor; // Componente adicional (script) para obtener información de los sensores
+    private GameObject baseC;
+    private Vector3 initialPosition;
 
     private float upForce; // Indica la fuerza de elevación del dron
     private float movementForwardSpeed = 250.0f; // Escalar para indicar fuerza de movimiento frontal
@@ -21,6 +23,9 @@ public class Actuadores : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         sensor = GetComponent<Sensores>();
         bateria = GameObject.Find("Bateria").gameObject.GetComponent<Bateria>();
+        baseC = GameObject.FindGameObjectWithTag("BaseDeCarga");
+
+        initialPosition = rb.transform.position;
     }
 
     // ========================================
@@ -30,11 +35,21 @@ public class Actuadores : MonoBehaviour
     public void Ascender(){
         upForce = 190;
         rb.AddRelativeForce(Vector3.up * upForce);
+        //Se libera la coordenada y para que el dron pueda elevarse.
+        rb.constraints = RigidbodyConstraints.None;
+    }
+
+    public void MantenerAltura(){   
+        for(int i= 0; i < 50; i++){
+            Ascender();   
+        }
     }
 
     public void Descender(){
         upForce = 10;
         rb.AddRelativeForce(Vector3.up * upForce);
+        //Se libera la coordenada y para que el dron pueda descender.
+        rb.constraints = RigidbodyConstraints.None;
     }
 
     public void Flotar(){
@@ -74,14 +89,28 @@ public class Actuadores : MonoBehaviour
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
     }
-
+/**
     public void Limpiar(GameObject basura){
         basura.SetActive(false);
         sensor.SetTocandoBasura(false);
         sensor.SetCercaDeBasura(false);
-    }
+    }*/
 
+    public void acercarABase(){
+        Vector3 target = initialPosition;
+        target = baseC.transform.position;
+
+        float fixedSpeed = 3 * Time.deltaTime;
+        rb.transform.position = Vector3.MoveTowards(rb.transform.position, target, fixedSpeed);
+
+    }
     public void CargarBateria(){
         bateria.Cargar();
     }
+
+    //Se fija la coordenada y para que el dron no se eleve.
+    public void fijarAltura () {
+      rb.constraints = RigidbodyConstraints.FreezePositionY;
+    }
+
 }

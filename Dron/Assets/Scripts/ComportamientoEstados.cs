@@ -8,10 +8,12 @@ public class ComportamientoEstados : MonoBehaviour {
 	private Sensores sensor;
 	private Actuadores actuador;
 
-	private enum Percepcion {NoFrenteAPared=0, FrenteAPared=1, DerechaPared=2, FrenteDerechaPared=4}; // Lista predefinida de posibles percepciones con los sensores
-	private enum Estado {Avanzar=0, Detenerse=1, GiraDerecha=2,AvanzarPerimetro=3, GiraDerechaPerimetro=4}; // Lista de estados para la maquina de estados y tabla de transiciones
+	private enum Percepcion {NoFrenteAPared=0, FrenteAPared=1, DerechaPared=2, FrenteDerechaPared=4, BateriaBaja =5, 
+						CercaDeBaseDeCarga=6, BateriaLlena=7}; // Lista predefinida de posibles percepciones con los sensores
+	private enum Estado {Avanzar=0, Detenerse=1, GiraDerecha=2,AvanzarPerimetro=3, GiraDerechaPerimetro=4, Cargando=5}; // Lista de estados para la maquina de estados y tabla de transiciones
 	private Estado estadoActual;
 	private Percepcion percepcionActual;
+	private bool sensorEnBateriaBaja = false, bateriaLlena = false;
 
 
 	void Start(){
@@ -21,9 +23,12 @@ public class ComportamientoEstados : MonoBehaviour {
 	}
 
 	void FixedUpdate() {
-		if(sensor.Bateria() <= 0)
+		if(sensor.Bateria() <= 0) {
+			// Si se queda sin batería se cae.
+			actuador.Descender();
 			return;
-
+		}
+		actuador.fijarAltura();
 		percepcionActual = PercibirMundo();
 		estadoActual = TablaDeTransicion(estadoActual, percepcionActual);
 		Debug.Log("-> "+ estadoActual + "  -  " + percepcionActual);
@@ -57,6 +62,11 @@ public class ComportamientoEstados : MonoBehaviour {
 					case Percepcion.NoFrenteAPared:
 						estado = Estado.Avanzar;
 						break;
+					//Este es el caso donde se detecta la bateria baja y empieza a buscar en el perimetro.
+						//se levanta una bandera para no interrumpir la percepcion mientras recorre el perimetro.
+					case Percepcion.BateriaBaja: 
+						estado = Estado.AvanzarPerimetro;
+						break;
 				}
 				break;
 			case Estado.Detenerse:
@@ -77,9 +87,11 @@ public class ComportamientoEstados : MonoBehaviour {
 					case Percepcion.FrenteDerechaPared:
 						estado = Estado.GiraDerechaPerimetro;
 						break;
-
 					case Percepcion.NoFrenteAPared:
 						estado = Estado.AvanzarPerimetro;
+						break;
+					case Percepcion.CercaDeBaseDeCarga:
+						estado = Estado.Cargando;
 						break;
 				}
 				break;
@@ -101,6 +113,19 @@ public class ComportamientoEstados : MonoBehaviour {
 						GiraCompleto();
 						estado = Estado.AvanzarPerimetro;
 						break;
+				}
+				break;
+			case Estado.Cargando:
+				switch(percepcion){
+					case Percepcion.BateriaLlena:
+						estado = Estado.Avanzar;
+						break;
+					default:
+						Detenerse();
+						estado = Estado.Cargando;
+						break;
+					break;
+
 				}
 				break;
 
@@ -126,6 +151,11 @@ public class ComportamientoEstados : MonoBehaviour {
 		actuador.GirarDerecha();
 	}
 
+	void Cargando(){
+		actuador.acercarABase();
+		
+	}
+
 	// Usar sensores para determinar el tipo de percepción actual
 	Percepcion PercibirMundo(){/*
 		Percepcion percepcionActual = Percepcion.NoFrenteAPared;
@@ -135,6 +165,22 @@ public class ComportamientoEstados : MonoBehaviour {
 			percepcionActual = Percepcion.NoFrenteAPared;
 		return percepcionActual;*/
 		Percepcion percepcionActual = Percepcion.NoFrenteAPared;
+
+		if(sensor.BateriaLlena() && !bateriaLlena){
+			bateriaLlena = true;
+			actuador.MantenerAltura();
+			return Percepcion.BateriaLlena;
+		}
+		if(sensor.BateriaBaja() && !sensorEnBateriaBaja){
+			sensorEnBateriaBaja = true;
+			percepcionActual = Percepcion.BateriaBaja;
+			return percepcionActual;
+		}
+		if(sensor.CercaDeBaseDeCarga() && sensorEnBateriaBaja && !bateriaLlena){
+			percepcionActual = Percepcion.CercaDeBaseDeCarga;
+			return percepcionActual;
+			
+		}
 
 		if(sensor.FrenteAPared()){
 			Debug.Log("------->  frente pared");
@@ -176,6 +222,9 @@ public class ComportamientoEstados : MonoBehaviour {
 			case Estado.GiraDerecha:
 				GirarDerecha();
 				break;
+			case Estado.Cargando:
+				Cargando();
+				break;
 			default:
 				Detenerse();
 				break;
@@ -183,6 +232,7 @@ public class ComportamientoEstados : MonoBehaviour {
 	}
 
 	void GiraCompleto(){
+		
 		for(int i = 0; i <14; i++){
 			GirarDerecha();
 		}
