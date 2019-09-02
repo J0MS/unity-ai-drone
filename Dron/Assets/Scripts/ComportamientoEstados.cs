@@ -8,24 +8,28 @@ public class ComportamientoEstados : MonoBehaviour {
 	private Sensores sensor;
 	private Actuadores actuador;
 
-	private enum Percepcion {NoFrenteAPared=0, FrenteAPared=1, DerechaPared=2, FrenteDerechaPared=4}; // Lista predefinida de posibles percepciones con los sensores
-	private enum Estado {Avanzar=0, Detenerse=1, GiraDerecha=2,AvanzarPerimetro=3, GiraDerechaPerimetro=4}; // Lista de estados para la maquina de estados y tabla de transiciones
+	private enum Percepcion {NoFrenteAPared=0, FrenteAPared=1, BateriaBaja=2, BateriaLlena=3}; // Lista predefinida de posibles percepciones con los sensores
+	private enum Estado {Avanzar=0, Detenerse=1, GiraDerecha=2, Subir=3, IrABase=4}; // Lista de estados para la maquina de estados y tabla de transiciones
 	private Estado estadoActual;
 	private Percepcion percepcionActual;
+	private Percepcion p1;
 
 
 	void Start(){
 		sensor = GetComponent<Sensores>();
 		actuador = GetComponent<Actuadores>();
-		estadoActual = Estado.AvanzarPerimetro;
+		estadoActual = Estado.Avanzar;
 	}
 
 	void FixedUpdate() {
+
+
 		if(sensor.Bateria() <= 0) {
 			// Si se queda sin batería se cae.
 			actuador.Descender();
 			return;
 		}
+
 
 		percepcionActual = PercibirMundo();
 		estadoActual = TablaDeTransicion(estadoActual, percepcionActual);
@@ -50,16 +54,24 @@ public class ComportamientoEstados : MonoBehaviour {
 	// | Detenerse         | Detenerse  | Detenerse   |
 	// ------------------------------------------------
 	Estado TablaDeTransicion(Estado estado, Percepcion percepcion){
+		actuador.Flotar();
 		sensor.reset();
 		switch(estado){
 			case Estado.Avanzar:
 				switch(percepcion){
 					case Percepcion.FrenteAPared:
-						estado = Estado.Detenerse;
+						Detenerse();
+						estado = Estado.GiraDerecha;
 						break;
 					case Percepcion.NoFrenteAPared:
 						estado = Estado.Avanzar;
 						break;
+					case Percepcion.BateriaLlena:
+						estado = Estado.Avanzar;
+						break;
+					case Percepcion.BateriaBaja:
+							estado = Estado.IrABase;
+							break;
 				}
 				break;
 			case Estado.Detenerse:
@@ -70,41 +82,63 @@ public class ComportamientoEstados : MonoBehaviour {
 					case Percepcion.NoFrenteAPared:
 						estado = Estado.Detenerse;
 						break;
-				}
-				break;
-			case Estado.AvanzarPerimetro:
-				switch(percepcion){
-					case Percepcion.FrenteAPared:
-						estado = Estado.GiraDerechaPerimetro;
-						break;
-					case Percepcion.FrenteDerechaPared:
-						estado = Estado.GiraDerechaPerimetro;
-						break;
-
-					case Percepcion.NoFrenteAPared:
-						estado = Estado.AvanzarPerimetro;
+					case Percepcion.BateriaBaja:
+							estado = Estado.Detenerse;
 						break;
 				}
 				break;
-			case Estado.GiraDerechaPerimetro:
-				switch(percepcion){
+			case Estado.GiraDerecha:
+				switch (percepcion){
 					case Percepcion.FrenteAPared:
-						Detenerse();
-							estado = Estado.GiraDerechaPerimetro;
+					  //Detenerse();
+						estado = Estado.GiraDerecha;
 						break;
-					case Percepcion.FrenteDerechaPared:
-						Detenerse();
-						estado = Estado.GiraDerechaPerimetro;
-						break;
-
 					case Percepcion.NoFrenteAPared:
-						estado = Estado.GiraDerechaPerimetro;
+						estado = Estado.Avanzar;
 						break;
-					case Percepcion.DerechaPared:
-						GiraCompleto();
-						estado = Estado.AvanzarPerimetro;
+					case Percepcion.BateriaLlena:
+						estado = Estado.Avanzar;
 						break;
-				}
+					case Percepcion.BateriaBaja:
+						estado = Estado.Avanzar;
+						break;
+					}
+			  break;
+			case Estado.Subir:
+				switch (percepcion){
+					case Percepcion.FrenteAPared:
+						estado = Estado.Subir;
+						break;
+					case Percepcion.NoFrenteAPared:
+						//Detenerse();
+						estado = Estado.Avanzar;
+						break;
+					case Percepcion.BateriaLlena:
+						estado = Estado.Subir;
+						break;
+					case Percepcion.BateriaBaja:
+						//Detenerse();
+						estado = Estado.Avanzar;
+						break;
+					}
+				break;
+			case Estado.IrABase:
+				//Detenerse();
+				switch (percepcion){
+					case Percepcion.FrenteAPared:
+						estado = Estado.GiraDerecha;
+						break;
+					case Percepcion.NoFrenteAPared:
+						estado = Estado.Avanzar;
+						break;
+					case Percepcion.BateriaLlena:
+						estado = Estado.Subir;
+						break;
+					case Percepcion.BateriaBaja:
+						estado = Estado.Avanzar;
+						break;
+					}
+
 				break;
 
 		}
@@ -113,49 +147,58 @@ public class ComportamientoEstados : MonoBehaviour {
 
 	// Representación de los ESTADOS como métodos
 
+	void BateriaBaja() {
+		actuador.irABase();
+	}
+
 	// El estado AVANZAR significa moverse hacia adelante siempre.
 	void Avanzar(){
-		actuador.Flotar();
+		//actuador.Flotar();
 		actuador.Adelante();
 	}
 	// El estado DETENERSE representa mantenerse en el mismo punto
 	void Detenerse(){
-		actuador.Flotar();
+		//actuador.Flotar();
 		actuador.Detener();
 	}
 
-	void GirarDerecha(){
-		actuador.Flotar();
+	void Girar(){
+		//actuador.Flotar();
+		//actuador.fijarAltura();
 		actuador.GirarDerecha();
 	}
 
-	// Usar sensores para determinar el tipo de percepción actual
-	Percepcion PercibirMundo(){/*
-		Percepcion percepcionActual = Percepcion.NoFrenteAPared;
-		if(sensor.FrenteAPared())
-			percepcionActual = Percepcion.FrenteAPared;
-		else
-			percepcionActual = Percepcion.NoFrenteAPared;
-		return percepcionActual;*/
-		Percepcion percepcionActual = Percepcion.NoFrenteAPared;
+	void Subir(){
+		//actuador.Flotar();
+		actuador.Ascender();
+	}
 
-		if(sensor.FrenteAPared()){
-			Debug.Log("------->  frente pared");
+	// Usar sensores para determinar el tipo de percepción actual
+	Percepcion PercibirMundo(){
+		percepcionActual = Percepcion.NoFrenteAPared;
+
+
+		if (sensor.Bateria()<=45){
+			percepcionActual = Percepcion.BateriaBaja;
+				if (sensor.CercaDePared()){
+							Debug.Log("WWWWW");
+						AplicarEstado (Estado.Subir);
+					}
+				else {
+						Debug.Log("ZZZZZZ");
+						AplicarEstado (Estado.Avanzar);
+					}
+		}
+		else if (sensor.Bateria()>=100) {
+			percepcionActual = Percepcion.BateriaLlena;
+		}
+		else if(!sensor.FrenteAPared()){
+			percepcionActual = Percepcion.NoFrenteAPared;
+		}
+		else if(sensor.FrenteAPared()){
 			percepcionActual = Percepcion.FrenteAPared;
-			if(sensor.DerechaPared())
-				percepcionActual = Percepcion.FrenteDerechaPared;
-			return percepcionActual;
 		}
-		if(sensor.DerechaPared()){
-			Debug.Log("------->  derecha pared");
-			percepcionActual = Percepcion.DerechaPared;
-			if(sensor.FrenteAPared()){
-				Debug.Log("------->  derecha pared --- frente");
-				percepcionActual = Percepcion.FrenteDerechaPared;
-			}
-			return percepcionActual;
-		}
-            //Debug.Log("LA PERCEPCION NO TOCO NADA");
+
 		return percepcionActual;
 
 
@@ -167,17 +210,17 @@ public class ComportamientoEstados : MonoBehaviour {
 			case Estado.Avanzar:
 				Avanzar();
 				break;
-			case Estado.AvanzarPerimetro:
-				Avanzar();
-				break;
 			case Estado.Detenerse:
 				Detenerse();
 				break;
-			case Estado.GiraDerechaPerimetro:
-				GirarDerecha();
-				break;
 			case Estado.GiraDerecha:
-				GirarDerecha();
+				Girar();
+				break;
+			case Estado.Subir:
+				Subir();
+				break;
+			case Estado.IrABase:
+				BateriaBaja();
 				break;
 			default:
 				Detenerse();
@@ -186,9 +229,8 @@ public class ComportamientoEstados : MonoBehaviour {
 	}
 
 	void GiraCompleto(){
-		actuador.fijarAltura();
-		for(int i = 0; i <14; i++){
-			GirarDerecha();
-		}
+		//for(int i = 0; i <14; i++){
+			Girar();
+		//}
 	}
 }

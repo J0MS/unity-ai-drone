@@ -85,9 +85,9 @@ public class Sensores : MonoBehaviour
         return rayo.FrenteAPared();
     }
 
-    public bool DerechaPared(){
+    /*public bool DerechaPared(){
         return rayo.DerechaPared();
-    }
+    }*/
 
     public bool TocandoBasura(){
         return tocandoBasura;

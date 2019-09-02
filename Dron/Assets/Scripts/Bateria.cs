@@ -13,6 +13,7 @@ public class Bateria : MonoBehaviour
     void Update(){
         if(bateria > 0) // esto evita que la batería sea negativa
             bateria -= Time.deltaTime;
+            Debug.Log("Nivel de batería" + bateria);
     }
 
     // ========================================

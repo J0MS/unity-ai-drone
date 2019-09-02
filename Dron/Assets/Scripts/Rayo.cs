@@ -8,13 +8,14 @@ using UnityEngine;
 public class Rayo : MonoBehaviour
 {
     public float longitudDeRayo;
-    private bool frenteAPared, derechaPared;
+    private bool frenteAPared;
+    //derechaPared;
 
     void Update(){
         // Se muestra el rayo únicamente en la pantalla de diseño (Scene)
         Debug.DrawLine(transform.position, transform.position + (transform.forward * longitudDeRayo), Color.blue);
 
-        Debug.DrawLine(transform.position, transform.position + (transform.right * longitudDeRayo), Color.red);
+        //Debug.DrawLine(transform.position, transform.position + (transform.right * longitudDeRayo), Color.red);
     }
 
     void FixedUpdate(){
@@ -28,14 +29,14 @@ public class Rayo : MonoBehaviour
                 frenteAPared = false;
             }
         }
-        if(Physics.Raycast(transform.position, transform.right, out raycastHit, longitudDeRayo)){
+        /*if(Physics.Raycast(transform.position, transform.right, out raycastHit, longitudDeRayo)){
             if(raycastHit.collider.gameObject.CompareTag("Pared")){
                 derechaPared = true;
             }
             else{
                 derechaPared = false;
             }
-        }
+        }*/
     }
 
     // Ejemplo de métodos públicos que podrán usar otros componentes (scripts):
@@ -43,11 +44,12 @@ public class Rayo : MonoBehaviour
         return frenteAPared;
     }
 
-    public bool DerechaPared(){
+    /*public bool DerechaPared(){
         return derechaPared;
-    }
+    }*/
 
     public void reset(){
-        frenteAPared = derechaPared = false;
+        frenteAPared = false;
+        //frenteAPared = derechaPared = false;
     }
 }
