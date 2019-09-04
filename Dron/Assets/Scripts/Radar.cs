@@ -9,6 +9,7 @@ public class Radar : MonoBehaviour
 {
     private bool BaseDeCarga;
     private bool cercaDePared;
+    private bool cercaObjetivo;
 
     void OnTriggerEnter(Collider other){
         if(other.gameObject.CompareTag("BaseDeCarga")){
@@ -16,6 +17,10 @@ public class Radar : MonoBehaviour
         }
         if(other.gameObject.CompareTag("Pared")){
             cercaDePared = true;
+        }
+        if (other.gameObject.CompareTag("Persona"))
+        {
+            cercaObjetivo = true;
         }
     }
 
@@ -26,6 +31,10 @@ public class Radar : MonoBehaviour
         if(other.gameObject.CompareTag("Pared")){
             cercaDePared = true;
         }
+        if (other.gameObject.CompareTag("Persona"))
+        {
+            cercaObjetivo = true;
+        }
     }
 
     void OnTriggerExit(Collider other){
@@ -35,6 +44,10 @@ public class Radar : MonoBehaviour
         if(other.gameObject.CompareTag("Pared")){
             cercaDePared = false;
         }
+        if (other.gameObject.CompareTag("Persona"))
+        {
+            cercaObjetivo = false;
+        }
     }
 
     public bool CercaDeBaseDeCarga(){
@@ -43,6 +56,11 @@ public class Radar : MonoBehaviour
 
     public bool CercaDePared(){
         return cercaDePared;
+    }
+
+    public bool CercaPersona()
+    {
+        return cercaObjetivo;
     }
 
     public void setCercaDeBasura(bool value){

@@ -14,7 +14,7 @@ public class Sensores : MonoBehaviour
     private bool cercaPared; // Bandera auxiliar para mantener el estado en caso de estar cerca de una pared
     private bool tocandoBaseDeCarga; // Bandera auxiliar para mantener el estado en caso de tocar basura
     private bool cercaBasura; // Bandera auxiliar para mantener el estado en caso de estar cerca de una basura
-
+    private bool cercaObjetivo;
     // Asignaciones de componentes
     void Start(){
         radar = GameObject.Find("Radar").gameObject.GetComponent<Radar>();
@@ -113,6 +113,10 @@ public class Sensores : MonoBehaviour
         rayo.reset();
     }
 
+    public bool CercaPersona()
+    {
+        return radar.CercaPersona();
+    }
     // Algunos otros métodos auxiliares que pueden ser de apoyo
 
     public GameObject GetBaseDeCarga(){

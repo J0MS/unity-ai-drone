@@ -9,9 +9,13 @@ public class Actuadores : MonoBehaviour
     private Sensores sensor; // Componente adicional (script) para obtener información de los sensores
     private GameObject baseC;
     private Vector3 initialPosition;
+<<<<<<< HEAD
+=======
+    private float alturaInicial;
+>>>>>>> jose
 
     private float upForce; // Indica la fuerza de elevación del dron
-    private float movementForwardSpeed = 250.0f; // Escalar para indicar fuerza de movimiento frontal
+    private float movementForwardSpeed = 250.0f;//250.0f; // Escalar para indicar fuerza de movimiento frontal
     private float wantedYRotation; // Auxiliar para el cálculo de rotación
     private float currentYRotation; // Auxiliar para el cálculo de rotación
     private float rotateAmountByKeys = 2.5f; // Auxiliar para el cálculo de rotación
@@ -26,11 +30,26 @@ public class Actuadores : MonoBehaviour
         baseC = GameObject.FindGameObjectWithTag("BaseDeCarga");
 
         initialPosition = rb.transform.position;
+<<<<<<< HEAD
+=======
+        alturaInicial = transform.position.y;
+>>>>>>> jose
     }
 
     // ========================================
     // A partir de aqui, todos los métodos definidos son públicos, la intención
     // es que serán usados por otro componente (Controlador)
+
+    public void Estabilizar(){
+      if (alturaInicial < transform.position.y || transform.position.y<1.5f){
+        Vector3 velocity = Vector3.zero;
+        Debug.Log("Estabilizar altura a " + alturaInicial);
+        //Ascender();
+        Vector3 nA = new Vector3(transform.position.x, alturaInicial, transform.position.z);
+        transform.position = Vector3.SmoothDamp(transform.position, nA, ref velocity, 0.3f);
+        //rb.velocity = new Vector3(0.5f,0.5f,0.5f);
+      }
+    }
 
     public void Ascender(){
         upForce = 190;
@@ -43,6 +62,15 @@ public class Actuadores : MonoBehaviour
         for(int i= 0; i < 50; i++){
             Ascender();   
         }
+    }
+
+    public void Despegar(){
+        //if (alturaInicial > transform.position.y)
+          Vector3 velocity = Vector3.zero;
+          Debug.Log("Altura Inicial: " + alturaInicial);
+          //Ascender();
+          Vector3 nA = new Vector3(transform.position.x, alturaInicial, transform.position.z);
+          transform.position = Vector3.SmoothDamp(transform.position, nA, ref velocity, 4.0f * Time.deltaTime);
     }
 
     public void Descender(){
@@ -101,16 +129,45 @@ public class Actuadores : MonoBehaviour
         target = baseC.transform.position;
 
         float fixedSpeed = 3 * Time.deltaTime;
+<<<<<<< HEAD
         rb.transform.position = Vector3.MoveTowards(rb.transform.position, target, fixedSpeed);
+=======
+        rb.transform.position = Vector3.MoveTowards(rb.transform.position, target, 0.1f);
+        //transform.rotation = Quaternion.identity;
+>>>>>>> jose
 
     }
     public void CargarBateria(){
         bateria.Cargar();
     }
 
+<<<<<<< HEAD
     //Se fija la coordenada y para que el dron no se eleve.
     public void fijarAltura () {
       rb.constraints = RigidbodyConstraints.FreezePositionY;
     }
 
+=======
+
+    public void IrHaciaPersona()
+    {
+        transform.rotation = Quaternion.identity;
+        Transform target = GameObject.FindGameObjectWithTag("Persona").transform;
+        Vector3 seguimiento = target.position;
+        //seguimiento.x = seguimiento.x - 2.0f;
+        seguimiento.y = seguimiento.y + 1.0f;
+        //seguimiento.z = seguimiento.z - 2.0f;
+        transform.position = Vector3.MoveTowards(transform.position, seguimiento, 4.0f * Time.deltaTime);
+    }
+
+    public void Buscando() {
+         transform.rotation = Quaternion.identity;
+        //float y = transform.position.y;
+        float x = Random.Range(-4f, 4f);
+        //float y = Random.Range(-2f, 2f);
+        float z = Random.Range(-4f, 4f);
+        rb.AddForce(new Vector3(x, 0, z) * 100f);
+
+    }
+>>>>>>> jose
 }
