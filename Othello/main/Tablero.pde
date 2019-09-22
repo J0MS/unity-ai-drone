@@ -43,6 +43,10 @@ class Tablero {
           fill(77, 132, 75);
           noStroke();
           ellipse((i*desp) + (desp/2), (j*despV) + (despV/2), desp*3/4, despV*3/4);        
+        }if(mundo[i][j] == 3) {
+          fill(52, 235, 210);
+          noStroke();
+          ellipse((i*desp) + (desp/2), (j*despV) + (despV/2), desp*3/4, despV*3/4);
         }
         
        }

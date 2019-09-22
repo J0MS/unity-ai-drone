@@ -1,9 +1,12 @@
 Tablero tablero;
+private boolean n, s, e, w, sw, se, nw, ne;
+private ArrayList<Pair> positions = new ArrayList<Pair>();
 /**Metodo que inicializa el tablero */
 void setup() {
   size(600, 600);
   background(77, 132, 75);
   tablero = new Tablero(8);
+  showAvailable();
 }
 
 /** Metodo que dibuja el tablero*/
@@ -15,27 +18,17 @@ void draw() {
 void mouseClicked() {
   int posX = mouseX/(width/tablero.dimension);
   int posY = mouseY/(height/tablero.dimension);
-  //Si se quiere tirar en una casilla ocupada
-  if (tablero.mundo[posX][posY] != 2 && tablero.mundo[posX][posY] != 0) {
-    println("Casilla ocupada");
-    return;
-  }
-  //se debe realizar todos los metodos para poder pintarlos 
-  boolean n = checkNorth(posX, posY);
-  boolean s = checkSouth(posX, posY);
-  boolean e = checkEast(posX, posY);
-  boolean w = checkWest(posX, posY);
-  boolean sw = checkSouthWest(posX, posY);
-  boolean se = checkSouthEast(posX, posY);
-  boolean nw = checkNorthWest(posX, posY);
-  boolean ne = checkNorthEast(posX, posY);
+  println("casilla"+"("+posX+","+posY+")");
   
-  if (n || s || e || w || sw || se || nw || ne) {
+  if (canPlay(posX, posY)) {
     tablero.mundo[posX][posY] = tablero.turno;
+    paint(posX,posY);
     tablero.turno = tablero.turno*-1;
   } else {
     println("Movimiento invalido");
   }
+  reset();
+  showAvailable();
 }
 
 /** Metodo que verifica si el norte es un movimiento valido*/
@@ -46,7 +39,7 @@ boolean checkNorth(int x, int y) {
     }
     if (tablero.mundo[x][i] == tablero.turno) {
       if (tablero.mundo[x][i-1] == tablero.turno*-1) {
-        paintVertical(x, y, i);
+        //paintVertical(x, y, i);
        return true;
       }
     }
@@ -65,8 +58,7 @@ boolean checkSouth(int x, int y) {
     }
     if (tablero.mundo[x][i] == tablero.turno) {
       if (tablero.mundo[x][i+1] == tablero.turno*-1) {
-         paintVertical(x, y, i);
-
+         //paintVertical(x, y, i);
          return true;
       }
     }
@@ -85,7 +77,7 @@ boolean checkWest(int x, int y) {
     }
     if (tablero.mundo[i][y] == tablero.turno) {
       if (tablero.mundo[i+1][y] == tablero.turno*-1) {
-        paintHorizontal(y, x, i);
+        //paintHorizontal(y, x, i);
        return true;
       }
     }
@@ -104,7 +96,7 @@ boolean checkEast(int x, int y) {
     }
     if (tablero.mundo[i][y] == tablero.turno) {
       if (tablero.mundo[i-1][y] == tablero.turno*-1) {
-        paintHorizontal(y, x, i);
+        //paintHorizontal(y, x, i);
        return true;
       }
     }
@@ -120,7 +112,7 @@ boolean checkNorthWest(int x, int y) {
             }
             if (tablero.mundo[i][j] == tablero.turno) {
                 if (tablero.mundo[i+1][j+1] == tablero.turno*-1) {                
-                   paintNWSE(x, y, i, j);
+                   //paintNWSE(x, y, i, j);
                     return true;
                 }
             }
@@ -136,7 +128,7 @@ boolean checkSouthWest(int x, int y) {
             }
             if (tablero.mundo[i][j] == tablero.turno) {
                 if (tablero.mundo[i+1][j-1] == tablero.turno*-1) {
-                   paintNESW(x, y, i, j);
+                   //paintNESW(x, y, i, j);
                     return true;
                 }
             }
@@ -152,7 +144,7 @@ boolean checkNorthEast(int x, int y) {
             }
             if (tablero.mundo[i][j] == tablero.turno) {
                 if (tablero.mundo[i-1][j+1] == tablero.turno*-1) {
-                   paintNESW(x, y, i, j);
+                   //paintNESW(x, y, i, j);
                     return true;
                 }
             }
@@ -168,7 +160,7 @@ boolean checkSouthEast(int x, int y) {
             }
             if (tablero.mundo[i][j] == tablero.turno) {
                 if (tablero.mundo[i-1][j-1] == tablero.turno*-1) {
-                   paintNWSE(x, y, i, j);
+                   //paintNWSE(x, y, i, j);
                     return true;
                 }
             }
@@ -177,30 +169,143 @@ boolean checkSouthEast(int x, int y) {
     return false;
 }
 
-/**Metodo que cambia el color de las fichas que cambian de color (que se flippean)*/
-void paintVertical(int x, int a, int b){
-  for(int i = min(a, b); i <= max(a, b); i++){
+void paintNorth(int x, int a){
+  for(int i = a; i <tablero.dimension; i++){
     tablero.mundo[x][i] = tablero.turno;
+    if (tablero.turno==tablero.mundo[x][i+1])
+        return;
   }
 }
 
-/**Metodo que cambia el color de las fichas que cambian de color (que se flippean)*/
-void paintHorizontal(int y, int a, int b){
-  for(int i = min(a, b); i <= max(a, b); i++){
+void paintSouth(int x, int a){
+  for(int i = a; i >0; i--){
+    tablero.mundo[x][i] = tablero.turno;
+    if (tablero.turno==tablero.mundo[x][i-1])
+        return;
+  }
+}
+
+void paintEast(int a, int y){
+  for(int i = a; i <tablero.dimension; i++){
     tablero.mundo[i][y] = tablero.turno;
+    if (tablero.turno==tablero.mundo[i+1][y])
+        return;
   }
 }
 
-/**Metodo que cambia el color de las fichas que cambian de color (que se flippean)*/
-void paintNWSE(int a, int b, int x, int y){ //pinta noroeste y sureste
-  for (int i = min(a, x), j = min(b, y); i < max(a, x) && j < max(b, y); j++, i++) {
-    tablero.mundo[i][j] = tablero.turno;
+void paintWest(int a, int y){
+  for(int i = a; i >0; i--){
+    tablero.mundo[i][y] = tablero.turno;
+    if (tablero.turno==tablero.mundo[i-1][y])
+        return;
   }
 }
 
-/**Metodo que cambia el color de las fichas que cambian de color (que se flippean)*/
-void paintNESW(int a, int b, int x, int y){//Pinta noreste y suroeste
-  for (int i = max(a, x), j = min(b, y); i > min(a, x) && j < max(b, y); j++, i--) {
+void paintNorthEast(int a, int b){
+  for(int i = a, j = b; i<tablero.dimension && j>0; i++, j--){      
     tablero.mundo[i][j] = tablero.turno;
+    if (tablero.turno==tablero.mundo[i+1][j-1])
+        return;
+  }
+}
+
+void paintNorthWest(int a, int b){
+  for(int i = a, j = b; i>0 && j>0; i--, j--){      
+    tablero.mundo[i][j] = tablero.turno;
+    if (tablero.turno==tablero.mundo[i-1][j-1])
+        return;
+  }
+}
+
+void paintSouthEast(int a, int b){
+  for(int i = a, j = b; i<tablero.dimension && j<tablero.dimension; i++, j++){      
+    tablero.mundo[i][j] = tablero.turno;
+    if (tablero.turno==tablero.mundo[i+1][j+1])
+        return;
+  }
+}
+
+void paintSouthWest(int a, int b){
+  for(int i = a, j = b; i>0 && j<tablero.dimension; i--, j++){      
+    tablero.mundo[i][j] = tablero.turno;
+    if (tablero.turno==tablero.mundo[i-1][j+1])
+        return;
+  }
+}
+
+
+boolean canPlay(int posX , int posY) {
+  
+  if(tablero.mundo[posX][posY] == 2 || tablero.mundo[posX][posY] == 0 || tablero.mundo[posX][posY] == 3){
+  
+  n = checkNorth(posX, posY);
+  s = checkSouth(posX, posY);
+  e = checkEast(posX, posY);
+  w = checkWest(posX, posY);
+  sw = checkSouthWest(posX, posY);
+  se = checkSouthEast(posX, posY);
+  nw = checkNorthWest(posX, posY);
+  ne = checkNorthEast(posX, posY);
+   if (n || s || e || w || sw || se || nw || ne){
+    return true;
+   }
+}
+  
+  return false;
+}
+
+void paint(int posX, int posY){
+   if (n)
+     paintNorth(posX,posY);
+     
+   if (s)
+     paintSouth(posX,posY);
+     
+   if (e)
+     paintEast(posX,posY);
+     
+   if (w)
+     paintWest(posX,posY);
+     
+   if (ne)
+     paintNorthEast(posX,posY);
+   
+   if (nw)
+     paintNorthWest(posX,posY);
+   
+   if (se)
+     paintSouthEast(posX,posY);
+   
+   if (sw)
+     paintSouthWest(posX,posY);
+}
+
+void reset (){
+  n=s=e=w=sw=se=nw=ne=false;
+  for (Pair p : positions) {
+    if (tablero.mundo[p.first()][p.second()]!=-1 && tablero.mundo[p.first()][p.second()]!=1)
+    tablero.mundo[p.first()][p.second()]=0;
+  }
+  positions.clear();
+}
+
+public ArrayList<Pair> getAvailable (){
+ for(int i = 0; i< tablero.dimension; i++ ){
+   for(int j = 0; j< tablero.dimension; j++){
+     if (canPlay(i,j)){
+       Pair p = new Pair(i,j); 
+       positions.add(p);
+     }
+   }
+ }
+ return positions;  
+}
+
+public void showAvailable(){
+  ArrayList<Pair> l = getAvailable();
+  println("Posiciones Disponibles:");
+  for (Pair p : l) {
+    print("("+ p.first()+","+p.second()+")");
+    tablero.mundo[p.first()][p.second()]=3;
   }
 }
