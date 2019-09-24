@@ -33,140 +33,113 @@ void mouseClicked() {
 
 /** Metodo que verifica si el norte es un movimiento valido*/
 boolean checkNorth(int x, int y) {
-  for (int i = y + 1; i < tablero.dimension; i++) {
-    if (tablero.mundo[x][i] == 0) {
-      return false;
-    }
-    if (tablero.mundo[x][i] == tablero.turno) {
-      if (tablero.mundo[x][i-1] == tablero.turno*-1) {
-        //paintVertical(x, y, i);
-       return true;
+  if (y==7)
+    return false;
+  if (tablero.mundo[x][y+1] == tablero.turno*-1) {
+    for (int i = y+1; i < tablero.dimension-1; i++) {
+      if (tablero.mundo[x][i+1] == tablero.turno) {
+        return true;
       }
-    }
+     }
   }
   return false;
 }
 
 /** Metodo que verifica si el sur es un movimiento valido*/
 boolean checkSouth(int x, int y) {
-  if(y != 0 && tablero.mundo[x][y-1] == tablero.turno){
-     return false;
-  } 
-  for (int i = y - 1; i > 0; i--) {
-    if (tablero.mundo[x][i] == 0) {
-      return false;
-    }
-    if (tablero.mundo[x][i] == tablero.turno) {
-      if (tablero.mundo[x][i+1] == tablero.turno*-1) {
-         //paintVertical(x, y, i);
-         return true;
+  if (y==0)
+    return false;
+  if (tablero.mundo[x][y-1] == tablero.turno*-1) {
+    for (int i = y-1; i>0; i--) {
+      if (tablero.mundo[x][i-1] == tablero.turno) {
+        return true;
       }
-    }
+     }
   }
   return false;
 }
-
 /** Metodo que verifica si el oeste es un movimiento valido*/
 boolean checkWest(int x, int y) {
-  if(x != 0 && tablero.mundo[x-1][y] == tablero.turno){
-   return false;
-  }  
-  for (int i = x - 1; i > 0; i--) {
-    if (tablero.mundo[i][y] == 0) {
-      return false;
-    }
-    if (tablero.mundo[i][y] == tablero.turno) {
-      if (tablero.mundo[i+1][y] == tablero.turno*-1) {
-        //paintHorizontal(y, x, i);
-       return true;
+  if (x==0)
+    return false;
+  if (tablero.mundo[x-1][y] == tablero.turno*-1) {
+    for (int j = x-1; j>0; j--) {
+      if (tablero.mundo[j-1][y] == tablero.turno) {
+        return true;
       }
-    }
+     }
   }
   return false;
 }
 
 /** Metodo que verifica si el este es un movimiento valido*/
 boolean checkEast(int x, int y) {
-  if(x+1 != tablero.dimension && tablero.mundo[x+1][y] == tablero.turno){
-   return false;
-  }  
-  for (int i = x + 1; i < tablero.dimension; i++) {
-    if (tablero.mundo[i][y] == 0) {
-      return false;
-    }
-    if (tablero.mundo[i][y] == tablero.turno) {
-      if (tablero.mundo[i-1][y] == tablero.turno*-1) {
-        //paintHorizontal(y, x, i);
-       return true;
+  if (x==7)
+    return false;
+  if (tablero.mundo[x+1][y] == tablero.turno*-1) {
+    for (int j = x+1; j<tablero.dimension-1; j++) {
+      if (tablero.mundo[j+1][y] == tablero.turno) {
+        return true;
       }
-    }
+     }
   }
   return false;
 }
 
 /** Metodo que verifica si el noroeste es un movimiento valido*/
 boolean checkNorthWest(int x, int y) {
-    for (int j = y - 1, i = x - 1; j > 0 && i > 0; j--, i--) {
-            if (tablero.mundo[i][j] == 0) {
-                return false;
-            }
-            if (tablero.mundo[i][j] == tablero.turno) {
-                if (tablero.mundo[i+1][j+1] == tablero.turno*-1) {                
-                   //paintNWSE(x, y, i, j);
-                    return true;
-                }
-            }
-    }
+  if (x==0 || y==0)
     return false;
+  if (tablero.mundo[x-1][y-1] == tablero.turno*-1) {
+    for (int i = x-1, j = y-1; i>0 && j>0; i--, j--) {
+      if (tablero.mundo[i][j] == tablero.turno) {
+        return true;
+      }
+     }
+  }
+  return false;
 }
 
 /** Metodo que verifica si el sueroeste es un movimiento valido*/
 boolean checkSouthWest(int x, int y) {
-    for (int j = y + 1, i = x - 1; j < tablero.dimension && i > 0; j++, i--) {
-            if (tablero.mundo[i][j] == 0) {
-                return false;
-            }
-            if (tablero.mundo[i][j] == tablero.turno) {
-                if (tablero.mundo[i+1][j-1] == tablero.turno*-1) {
-                   //paintNESW(x, y, i, j);
-                    return true;
-                }
-            }
-    }
+  if (x==0 || y==7)
     return false;
+  if (tablero.mundo[x-1][y+1] == tablero.turno*-1) {
+    for (int i = x-1, j = y+1; i>0 && j<tablero.dimension-1; i--, j++) {
+      if (tablero.mundo[x-1][y+1] == tablero.turno) {
+        return true;
+      }
+     }
+  }
+  return false;
 }
 
 /** Metodo que verifica si el noreste es un movimiento valido*/
 boolean checkNorthEast(int x, int y) {
-    for (int j = y - 1, i = x + 1; j > 0 && i < tablero.dimension; j--, i++) {
-            if (tablero.mundo[i][j] == 0) {
-                return false;
-            }
-            if (tablero.mundo[i][j] == tablero.turno) {
-                if (tablero.mundo[i-1][j+1] == tablero.turno*-1) {
-                   //paintNESW(x, y, i, j);
-                    return true;
-                }
-            }
-    }
+  if (x==7 || y==0)
     return false;
+  if (tablero.mundo[x+1][y-1] == tablero.turno*-1) {
+    for (int i = x+1, j = y-1; i<tablero.dimension-1 && j>0; i++, j--) {
+      if (tablero.mundo[x+1][y-1] == tablero.turno) {
+        return true;
+      }
+     }
+  }
+  return false;
 }
 
 /** Metodo que verifica si el sureste es un movimiento valido*/
 boolean checkSouthEast(int x, int y) {
-    for (int j = y + 1, i = x + 1; j < tablero.dimension && i < tablero.dimension; j++, i++) {
-            if (tablero.mundo[i][j] == 0) {
-                return false;
-            }
-            if (tablero.mundo[i][j] == tablero.turno) {
-                if (tablero.mundo[i-1][j-1] == tablero.turno*-1) {
-                   //paintNWSE(x, y, i, j);
-                    return true;
-                }
-            }
-        
-    }
+  if (x==7 || y==7)
     return false;
+  if (tablero.mundo[x+1][y+1] == tablero.turno*-1) {
+    for (int i = x+1, j = y+1; i<tablero.dimension-1 && j<tablero.dimension-1; i++, j++) {
+      if (tablero.mundo[x+1][y+1] == tablero.turno) {
+        return true;
+      }
+     }
+  }
+  return false;
 }
 
 void paintNorth(int x, int a){
