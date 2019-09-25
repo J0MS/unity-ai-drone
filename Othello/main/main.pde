@@ -33,13 +33,14 @@ void mouseClicked() {
 
 /** Metodo que verifica si el norte es un movimiento valido*/
 boolean checkNorth(int x, int y) {
-  if (y==7)
+  if (y==0)
     return false;
-  if (tablero.mundo[x][y+1] == tablero.turno*-1) {
-    for (int i = y+1; i < tablero.dimension-1; i++) {
-      if (tablero.mundo[x][i+1] == tablero.turno) {
+  if (tablero.mundo[x][y-1] == tablero.turno*-1) {
+    for (int i = y-1; i>0; i--) {
+      if (tablero.mundo[x][i-1] == 0)
+        return false;
+      if (tablero.mundo[x][i-1] == tablero.turno)
         return true;
-      }
      }
   }
   return false;
@@ -47,26 +48,29 @@ boolean checkNorth(int x, int y) {
 
 /** Metodo que verifica si el sur es un movimiento valido*/
 boolean checkSouth(int x, int y) {
-  if (y==0)
+  if (y==7)
     return false;
-  if (tablero.mundo[x][y-1] == tablero.turno*-1) {
-    for (int i = y-1; i>0; i--) {
-      if (tablero.mundo[x][i-1] == tablero.turno) {
+  if (tablero.mundo[x][y+1] == tablero.turno*-1) {
+    for (int i = y+1; i < tablero.dimension-1; i++) {
+      if (tablero.mundo[x][i+1] == 0)
+        return false;
+      if (tablero.mundo[x][i+1] == tablero.turno)
         return true;
       }
-     }
   }
   return false;
 }
+
 /** Metodo que verifica si el oeste es un movimiento valido*/
 boolean checkWest(int x, int y) {
   if (x==0)
     return false;
   if (tablero.mundo[x-1][y] == tablero.turno*-1) {
     for (int j = x-1; j>0; j--) {
-      if (tablero.mundo[j-1][y] == tablero.turno) {
+      if (tablero.mundo[j-1][y] == 0)
+        return false;
+      if (tablero.mundo[j-1][y] == tablero.turno)
         return true;
-      }
      }
   }
   return false;
@@ -78,9 +82,10 @@ boolean checkEast(int x, int y) {
     return false;
   if (tablero.mundo[x+1][y] == tablero.turno*-1) {
     for (int j = x+1; j<tablero.dimension-1; j++) {
-      if (tablero.mundo[j+1][y] == tablero.turno) {
+      if (tablero.mundo[j+1][y] == 0)
+        return false;
+      if (tablero.mundo[j+1][y] == tablero.turno)
         return true;
-      }
      }
   }
   return false;
@@ -92,9 +97,10 @@ boolean checkNorthWest(int x, int y) {
     return false;
   if (tablero.mundo[x-1][y-1] == tablero.turno*-1) {
     for (int i = x-1, j = y-1; i>0 && j>0; i--, j--) {
-      if (tablero.mundo[i][j] == tablero.turno) {
+      if (tablero.mundo[i-1][j-1] == 0)
+        return false;
+      if (tablero.mundo[i-1][j-1] == tablero.turno)
         return true;
-      }
      }
   }
   return false;
@@ -106,9 +112,10 @@ boolean checkSouthWest(int x, int y) {
     return false;
   if (tablero.mundo[x-1][y+1] == tablero.turno*-1) {
     for (int i = x-1, j = y+1; i>0 && j<tablero.dimension-1; i--, j++) {
-      if (tablero.mundo[x-1][y+1] == tablero.turno) {
+      if (tablero.mundo[i-1][j+1] == 0)
+        return false;
+      if (tablero.mundo[i-1][j+1] == tablero.turno)
         return true;
-      }
      }
   }
   return false;
@@ -120,9 +127,10 @@ boolean checkNorthEast(int x, int y) {
     return false;
   if (tablero.mundo[x+1][y-1] == tablero.turno*-1) {
     for (int i = x+1, j = y-1; i<tablero.dimension-1 && j>0; i++, j--) {
-      if (tablero.mundo[x+1][y-1] == tablero.turno) {
+      if (tablero.mundo[i+1][j-1] == 0)
+        return false;
+      if (tablero.mundo[i+1][j-1] == tablero.turno)
         return true;
-      }
      }
   }
   return false;
@@ -134,26 +142,27 @@ boolean checkSouthEast(int x, int y) {
     return false;
   if (tablero.mundo[x+1][y+1] == tablero.turno*-1) {
     for (int i = x+1, j = y+1; i<tablero.dimension-1 && j<tablero.dimension-1; i++, j++) {
-      if (tablero.mundo[x+1][y+1] == tablero.turno) {
+      if (tablero.mundo[i+1][j+1] == 0)
+        return false;
+      if (tablero.mundo[i+1][j+1] == tablero.turno)
         return true;
-      }
      }
   }
   return false;
 }
 
 void paintNorth(int x, int a){
-  for(int i = a; i <tablero.dimension; i++){
+  for(int i = a; i >0; i--){
     tablero.mundo[x][i] = tablero.turno;
-    if (tablero.turno==tablero.mundo[x][i+1])
+    if (tablero.turno==tablero.mundo[x][i-1])
         return;
   }
 }
 
 void paintSouth(int x, int a){
-  for(int i = a; i >0; i--){
+  for(int i = a; i <tablero.dimension; i++){
     tablero.mundo[x][i] = tablero.turno;
-    if (tablero.turno==tablero.mundo[x][i-1])
+    if (tablero.turno==tablero.mundo[x][i+1])
         return;
   }
 }
