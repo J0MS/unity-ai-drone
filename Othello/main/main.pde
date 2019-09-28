@@ -1,293 +1,53 @@
 Tablero tablero;
-private boolean n, s, e, w, sw, se, nw, ne;
-private ArrayList<Pair> positions = new ArrayList<Pair>();
+Player p1;
+Player p2;
+
 /**Metodo que inicializa el tablero */
 void setup() {
-  size(600, 600);
+  size(900, 600);
   background(77, 132, 75);
   tablero = new Tablero(8);
-  showAvailable();
+  p1 = new Player(tablero);
+  p2 = new Player(tablero);
+  p1.showAvailable();
 }
 
-/** Metodo que dibuja el tablero*/
+/** Metodo que dibuja el blero*/
 void draw() {
   tablero.display();
-}
-
-/** Metodo que maneja los clicks en la pantalla*/
-void mouseClicked() {
-  int posX = mouseX/(width/tablero.dimension);
-  int posY = mouseY/(height/tablero.dimension);
-  println("casilla"+"("+posX+","+posY+")");
-  
-  if (canPlay(posX, posY)) {
-    tablero.mundo[posX][posY] = tablero.turno;
-    paint(posX,posY);
-    tablero.turno = tablero.turno*-1;
-  } else {
-    println("Movimiento invalido");
-  }
-  reset();
-  showAvailable();
-}
-
-/** Metodo que verifica si el norte es un movimiento valido*/
-boolean checkNorth(int x, int y) {
-  if (y==0)
-    return false;
-  if (tablero.mundo[x][y-1] == tablero.turno*-1) {
-    for (int i = y-1; i>0; i--) {
-      if (tablero.mundo[x][i-1] == 0)
-        return false;
-      if (tablero.mundo[x][i-1] == tablero.turno)
-        return true;
-     }
-  }
-  return false;
-}
-
-/** Metodo que verifica si el sur es un movimiento valido*/
-boolean checkSouth(int x, int y) {
-  if (y==7)
-    return false;
-  if (tablero.mundo[x][y+1] == tablero.turno*-1) {
-    for (int i = y+1; i < tablero.dimension-1; i++) {
-      if (tablero.mundo[x][i+1] == 0)
-        return false;
-      if (tablero.mundo[x][i+1] == tablero.turno)
-        return true;
-      }
-  }
-  return false;
-}
-
-/** Metodo que verifica si el oeste es un movimiento valido*/
-boolean checkWest(int x, int y) {
-  if (x==0)
-    return false;
-  if (tablero.mundo[x-1][y] == tablero.turno*-1) {
-    for (int j = x-1; j>0; j--) {
-      if (tablero.mundo[j-1][y] == 0)
-        return false;
-      if (tablero.mundo[j-1][y] == tablero.turno)
-        return true;
-     }
-  }
-  return false;
-}
-
-/** Metodo que verifica si el este es un movimiento valido*/
-boolean checkEast(int x, int y) {
-  if (x==7)
-    return false;
-  if (tablero.mundo[x+1][y] == tablero.turno*-1) {
-    for (int j = x+1; j<tablero.dimension-1; j++) {
-      if (tablero.mundo[j+1][y] == 0)
-        return false;
-      if (tablero.mundo[j+1][y] == tablero.turno)
-        return true;
-     }
-  }
-  return false;
-}
-
-/** Metodo que verifica si el noroeste es un movimiento valido*/
-boolean checkNorthWest(int x, int y) {
-  if (x==0 || y==0)
-    return false;
-  if (tablero.mundo[x-1][y-1] == tablero.turno*-1) {
-    for (int i = x-1, j = y-1; i>0 && j>0; i--, j--) {
-      if (tablero.mundo[i-1][j-1] == 0)
-        return false;
-      if (tablero.mundo[i-1][j-1] == tablero.turno)
-        return true;
-     }
-  }
-  return false;
-}
-
-/** Metodo que verifica si el sueroeste es un movimiento valido*/
-boolean checkSouthWest(int x, int y) {
-  if (x==0 || y==7)
-    return false;
-  if (tablero.mundo[x-1][y+1] == tablero.turno*-1) {
-    for (int i = x-1, j = y+1; i>0 && j<tablero.dimension-1; i--, j++) {
-      if (tablero.mundo[i-1][j+1] == 0)
-        return false;
-      if (tablero.mundo[i-1][j+1] == tablero.turno)
-        return true;
-     }
-  }
-  return false;
-}
-
-/** Metodo que verifica si el noreste es un movimiento valido*/
-boolean checkNorthEast(int x, int y) {
-  if (x==7 || y==0)
-    return false;
-  if (tablero.mundo[x+1][y-1] == tablero.turno*-1) {
-    for (int i = x+1, j = y-1; i<tablero.dimension-1 && j>0; i++, j--) {
-      if (tablero.mundo[i+1][j-1] == 0)
-        return false;
-      if (tablero.mundo[i+1][j-1] == tablero.turno)
-        return true;
-     }
-  }
-  return false;
-}
-
-/** Metodo que verifica si el sureste es un movimiento valido*/
-boolean checkSouthEast(int x, int y) {
-  if (x==7 || y==7)
-    return false;
-  if (tablero.mundo[x+1][y+1] == tablero.turno*-1) {
-    for (int i = x+1, j = y+1; i<tablero.dimension-1 && j<tablero.dimension-1; i++, j++) {
-      if (tablero.mundo[i+1][j+1] == 0)
-        return false;
-      if (tablero.mundo[i+1][j+1] == tablero.turno)
-        return true;
-     }
-  }
-  return false;
-}
-
-void paintNorth(int x, int a){
-  for(int i = a; i >0; i--){
-    tablero.mundo[x][i] = tablero.turno;
-    if (tablero.turno==tablero.mundo[x][i-1])
-        return;
+  showDetails();
+  switch (tablero.turno) {
+    case 1:
+        p1.play();
+      break;
+    case -1:
+        p2.play();
+      break;
   }
 }
 
-void paintSouth(int x, int a){
-  for(int i = a; i <tablero.dimension; i++){
-    tablero.mundo[x][i] = tablero.turno;
-    if (tablero.turno==tablero.mundo[x][i+1])
-        return;
-  }
-}
-
-void paintEast(int a, int y){
-  for(int i = a; i <tablero.dimension; i++){
-    tablero.mundo[i][y] = tablero.turno;
-    if (tablero.turno==tablero.mundo[i+1][y])
-        return;
-  }
-}
-
-void paintWest(int a, int y){
-  for(int i = a; i >0; i--){
-    tablero.mundo[i][y] = tablero.turno;
-    if (tablero.turno==tablero.mundo[i-1][y])
-        return;
-  }
-}
-
-void paintNorthEast(int a, int b){
-  for(int i = a, j = b; i<tablero.dimension && j>0; i++, j--){      
-    tablero.mundo[i][j] = tablero.turno;
-    if (tablero.turno==tablero.mundo[i+1][j-1])
-        return;
-  }
-}
-
-void paintNorthWest(int a, int b){
-  for(int i = a, j = b; i>0 && j>0; i--, j--){      
-    tablero.mundo[i][j] = tablero.turno;
-    if (tablero.turno==tablero.mundo[i-1][j-1])
-        return;
-  }
-}
-
-void paintSouthEast(int a, int b){
-  for(int i = a, j = b; i<tablero.dimension && j<tablero.dimension; i++, j++){      
-    tablero.mundo[i][j] = tablero.turno;
-    if (tablero.turno==tablero.mundo[i+1][j+1])
-        return;
-  }
-}
-
-void paintSouthWest(int a, int b){
-  for(int i = a, j = b; i>0 && j<tablero.dimension; i--, j++){      
-    tablero.mundo[i][j] = tablero.turno;
-    if (tablero.turno==tablero.mundo[i-1][j+1])
-        return;
-  }
-}
-
-
-boolean canPlay(int posX , int posY) {
-  
-  if(tablero.mundo[posX][posY] == 2 || tablero.mundo[posX][posY] == 0 || tablero.mundo[posX][posY] == 3){
-  
-  n = checkNorth(posX, posY);
-  s = checkSouth(posX, posY);
-  e = checkEast(posX, posY);
-  w = checkWest(posX, posY);
-  sw = checkSouthWest(posX, posY);
-  se = checkSouthEast(posX, posY);
-  nw = checkNorthWest(posX, posY);
-  ne = checkNorthEast(posX, posY);
-   if (n || s || e || w || sw || se || nw || ne){
-    return true;
-   }
-}
-  
-  return false;
-}
-
-void paint(int posX, int posY){
-   if (n)
-     paintNorth(posX,posY);
-     
-   if (s)
-     paintSouth(posX,posY);
-     
-   if (e)
-     paintEast(posX,posY);
-     
-   if (w)
-     paintWest(posX,posY);
-     
-   if (ne)
-     paintNorthEast(posX,posY);
-   
-   if (nw)
-     paintNorthWest(posX,posY);
-   
-   if (se)
-     paintSouthEast(posX,posY);
-   
-   if (sw)
-     paintSouthWest(posX,posY);
-}
-
-void reset (){
-  n=s=e=w=sw=se=nw=ne=false;
-  for (Pair p : positions) {
-    if (tablero.mundo[p.first()][p.second()]!=-1 && tablero.mundo[p.first()][p.second()]!=1)
-    tablero.mundo[p.first()][p.second()]=0;
-  }
-  positions.clear();
-}
-
-public ArrayList<Pair> getAvailable (){
- for(int i = 0; i< tablero.dimension; i++ ){
-   for(int j = 0; j< tablero.dimension; j++){
-     if (canPlay(i,j)){
-       Pair p = new Pair(i,j); 
-       positions.add(p);
-     }
-   }
- }
- return positions;  
-}
-
-public void showAvailable(){
-  ArrayList<Pair> l = getAvailable();
-  println("Posiciones Disponibles:");
-  for (Pair p : l) {
-    print("("+ p.first()+","+p.second()+")");
-    tablero.mundo[p.first()][p.second()]=3;
-  }
+/**Muestra los detalles del juego**/
+void showDetails() {
+  p1.numFichas=0;
+  p2.numFichas=0;
+  tablero.score();
+  PFont f;
+  f = createFont("Serif.italic", 50);
+  textFont(f);
+  textAlign(CENTER);
+  fill(77, 132, 75);
+  rect(width-290, 110,280,50);
+  fill(#00B3FF);
+  text("Marcador", width-150, 100);
+  fill(0);
+  text(p1.numFichas, width-200, 150);
+  fill(255);
+  text(p2.numFichas, width-100, 150);
+  fill(#DCF9D8);
+  text("Turno", width-150, 300);
+  if (tablero.turno==1)
+    fill(0);
+  else
+    fill(255);
+    ellipse(width-150,350,40,40);
 }

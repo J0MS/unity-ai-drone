@@ -1,3 +1,7 @@
+/**
+Clase quemodela una pareja de enteros
+Auxiliar para guardar las posiciones del tablero.
+**/
 class Pair {
   
   private int x;
