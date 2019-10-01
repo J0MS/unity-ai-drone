@@ -29,9 +29,8 @@ class Tablero {
    * @param dimension Cantidad de casillas del tablero, comúnmente ocho.
    * @param tamCasilla Tamaño en pixeles de cada casilla
    */
-  Tablero(int dimension, int tamCasilla) {
+  Tablero(int dimension) {
     this.dimension = dimension;
-    this.tamCasilla = tamCasilla;
     turno = 1;
     mundo = new int[dimension][dimension];
     mundo[dimension/2-1][dimension/2-1] = -1;
@@ -45,14 +44,13 @@ class Tablero {
    * Tablero de 8x8 casillas, cada casilla de un tamaño de 60 pixeles,
    */
   Tablero() {
-    this(8, 80);
+    this(8);
   }
 
   /**Constructor copia de un tablero
    */
   Tablero(Tablero tab) {
     dimension = tab.dimension;
-    tamCasilla = tab.tamCasilla;
     turno = tab.turno;
     mundo = new int[dimension][dimension];
     for (int i = 0; i < dimension; i++)
@@ -64,40 +62,45 @@ class Tablero {
 
   /** Metodo que dibuja todo el tablero, se incluye la posicion inicial del juego*/
   void display() {
-    color fondo = color(63, 221, 24); // El color de fondo del tablero
-    color linea = color(0); // El color de línea del tablero
-    int grosor = 2; // Ancho de línea (en pixeles)
-    color jugador1 = color(0); // Color de ficha para el primer jugador
-    color jugador2 = color(255); // Color de ficha para el segundo jugador
-    color disponibles = color(52, 235, 210);
-    // Doble iteración para recorrer cada casilla del tablero
-    for (int i = 0; i < dimension; i++)
-      for (int j = 0; j < dimension; j++) {
-        // Dibujar cada casilla del tablero:
-        fill(fondo); // establecer color de fondo
-        stroke(linea); // establecer color de línea
-        strokeWeight(grosor); // establecer ancho de línea
-        rect(i*tamCasilla, j*tamCasilla, tamCasilla, tamCasilla);
+    /*************NO CAMBIAR****************/
+    int desp = (width-300)/tablero.dimension;
+    int despV = height/tablero.dimension;
+    /***************************************/
+    stroke(255);
+    for (int i = 0; i < dimension; i++) {
+      line(desp*(i + 1), 0, desp*(i + 1), height);
+      line(0, despV*i, width-300, despV*i);
+    }
 
-        // Dibujar las fichas de los jugadores:
-        //if (mundo[i][j] != 0 && (mundo[i][j] == 1 || mundo[i][j] == -1) || mundo[i][j] == 3) { // en caso de que la casilla no esté vacia
+    for (int i = 0; i < dimension; i++) {
+      for (int j = 0; j < dimension; j++) {
         if (mundo[i][j] == 1) {
-          fill(jugador1);
-          noStroke(); // quitar contorno de línea
-          ellipse(i*tamCasilla+(tamCasilla/2), j*tamCasilla+(tamCasilla/2), tamCasilla*3/5, tamCasilla*3/5);
-        }
+          fill(0);
+          noStroke();
+          ellipse((i*desp) + (desp/2), (j*despV) + (despV/2), desp*3/4, despV*3/4);
+        } 
         if (mundo[i][j] == -1) {
-          fill(jugador2);
-          noStroke(); // quitar contorno de línea
-          ellipse(i*tamCasilla+(tamCasilla/2), j*tamCasilla+(tamCasilla/2), tamCasilla*3/5, tamCasilla*3/5);
+          fill(255);
+          noStroke();
+          ellipse((i*desp) + (desp/2), (j*despV) + (despV/2), desp*3/4, despV*3/4);
+        } 
+        if (mundo[i][j] == 2) {
+          fill(122);
+          noStroke();
+          ellipse((i*desp) + (desp/2), (j*despV) + (despV/2), desp*3/4, despV*3/4);
+        }
+        if (mundo[i][j] == 0) {
+          fill(77, 132, 75);
+          noStroke();
+          ellipse((i*desp) + (desp/2), (j*despV) + (despV/2), desp*3/4, despV*3/4);
         }
         if (mundo[i][j] == 3) {
-          fill(disponibles);
-          noStroke(); // quitar contorno de línea
-          ellipse(i*tamCasilla+(tamCasilla/2), j*tamCasilla+(tamCasilla/2), tamCasilla*3/15, tamCasilla*3/15);
+          fill(52, 235, 210);
+          noStroke();
+          ellipse((i*desp) + (desp/2), (j*despV) + (despV/2), desp*3/15, despV*3/15);
         }
       }
-    //}
+    }
   }
 
   /**
@@ -253,6 +256,12 @@ class Tablero {
     return false;
   }
 
+/**
+Cambia de color las fichas del Norte
+        A
+        |
+        |
+**/
   void paintNorth(int x, int a) {
     for (int i = a; i >0; i--) {
       mundo[x][i] = turno;
@@ -261,6 +270,12 @@ class Tablero {
     }
   }
 
+/**
+Cambia de color las fichas del Sur
+        |
+        |
+        v
+**/
   void paintSouth(int x, int a) {
     for (int i = a; i <dimension; i++) {
       mundo[x][i] = turno;
@@ -269,6 +284,10 @@ class Tablero {
     }
   }
 
+/**
+Cambia de color las fichas del Este
+      ----->
+**/
   void paintEast(int a, int y) {
     for (int i = a; i <dimension; i++) {
       mundo[i][y] = turno;
@@ -277,6 +296,10 @@ class Tablero {
     }
   }
 
+/**
+Cambia de color las fichas del Oeste
+      <------
+**/
   void paintWest(int a, int y) {
     for (int i = a; i >0; i--) {
       mundo[i][y] = turno;
@@ -285,6 +308,12 @@ class Tablero {
     }
   }
 
+/**
+Cambia de color las fichas del Noreste
+               >
+              /
+             /
+**/
   void paintNorthEast(int a, int b) {
     for (int i = a, j = b; i<dimension && j>0; i++, j--) {      
       mundo[i][j] = turno;
@@ -293,6 +322,12 @@ class Tablero {
     }
   }
 
+/**
+Cambia de color las fichas del Noroeste
+           <
+            \
+             \
+**/
   void paintNorthWest(int a, int b) {
     for (int i = a, j = b; i>0 && j>0; i--, j--) {      
       mundo[i][j] = turno;
@@ -301,6 +336,12 @@ class Tablero {
     }
   }
 
+/**
+Cambia de color las fichas del Sureste
+            \
+             \
+              >
+**/
   void paintSouthEast(int a, int b) {
     for (int i = a, j = b; i<dimension && j<dimension; i++, j++) {      
       mundo[i][j] = turno;
@@ -309,6 +350,12 @@ class Tablero {
     }
   }
 
+/**
+Cambia de color las fichas del Suroeste
+            /
+           /
+          <
+**/
   void paintSouthWest(int a, int b) {
     for (int i = a, j = b; i>0 && j<dimension; i--, j++) {      
       mundo[i][j] = turno;
@@ -317,8 +364,13 @@ class Tablero {
     }
   }
 
-
+/**
+Método que verifica si se puede tirar en cierta posición
+**/
   boolean canPlay(int posX, int posY) {
+
+    if (posX>7 || posY>7)
+      return false;
 
     if (mundo[posX][posY] == 2 || mundo[posX][posY] == 0 || mundo[posX][posY] == 3) {
 
@@ -338,6 +390,9 @@ class Tablero {
     return false;
   }
 
+/**
+Método que cambia de color todas las fichas que se puedan.
+**/
   void paint(int posX, int posY) {
     if (n)
       paintNorth(posX, posY);
@@ -364,6 +419,10 @@ class Tablero {
       paintSouthWest(posX, posY);
   }
 
+/**
+Método que reestablece los valores de la lista de posiciones
+y las variables de dirección.
+**/
   void reset () {
     n=s=e=w=sw=se=nw=ne=false;
     for (Pair p : positions) {
@@ -373,7 +432,9 @@ class Tablero {
     positions.clear();
   }
 
-
+/**
+Método que reestablece quita las fichas verdes.
+**/
   void resetAll() {
     for (int i = 0; i < dimension; i++)
       for (int j = 0; j < dimension; j++)
@@ -381,6 +442,9 @@ class Tablero {
           mundo[i][j] = 0;
   }
 
+/**
+Método que obitene una lista con las posiciones en donde se puede tirar.
+**/
   public ArrayList<Pair> getAvailable () {
     for (int i = 0; i< dimension; i++ ) {
       for (int j = 0; j< dimension; j++) {
@@ -393,6 +457,10 @@ class Tablero {
     return positions;
   }
 
+/**
+Método que muestra en el tablero las posiciones en donde se puede tirar.
+(Puntos verdes)
+**/
   public void showAvailable() {
     ArrayList<Pair> l = getAvailable();
     println("Posiciones Disponibles:");

@@ -43,7 +43,7 @@ class Pair {
   */
   @Override
    public String toString(){
-     return "renglon: "+(y)+", "+"columna: "+x;
+     return "("+x+", "+y+")";
    }
   
 }
