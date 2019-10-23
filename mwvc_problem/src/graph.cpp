@@ -1,9 +1,9 @@
-/*-----------------------------------------<matrix.cpp>-----------------------------------------*/
-#include "matrix.hpp"
+/*-----------------------------------------<graph.cpp>-----------------------------------------*/
+#include "graph.hpp"
 
-matrix::matrix() {}
+graph::graph() {}
 
-matrix::matrix(int n){
+graph::graph(int n){
   this->sequence = n;
   this->G = new double *[n];
   for (int i = 0; i < n; i++){
@@ -16,12 +16,12 @@ matrix::matrix(int n){
   }
 }
 
-void matrix::updateWeight(int u, int v, double weight) {
+void graph::updateWeight(int u, int v, double weight) {
   this->G[u][v] = weight;
 }
 
-double matrix::getWeight(int u, int v) {
+double graph::getWeight(int u, int v) {
   return this->G[u][v];
 }
 
-/*-----------------------------------------</matrix.cpp>-----------------------------------------*/
+/*-----------------------------------------</graph.cpp>-----------------------------------------*/

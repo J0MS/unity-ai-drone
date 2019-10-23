@@ -6,7 +6,6 @@ project(
 libs = include_directories('lib')
 
 src = ['src/aco.cpp', 'src/graph.cpp', 'src/Main.cpp']
-src_test = ['src/aco.cpp', 'src/graph.cpp', 'src/testing.cpp']
 
 executable('main_aco',src,include_directories : libs)
 
