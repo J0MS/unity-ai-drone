@@ -1,206 +1,241 @@
 Tablero tablero;
-/**Metodo que inicializa el tablero */
+
+Pair tiro;
+int depth=0;
+int fichas1, fichas2;
+
+
+/**
+ * Inicializaciones
+ */
 void setup() {
-  size(600, 600);
+  size(900, 600);
   background(77, 132, 75);
-  tablero = new Tablero(8);
+  surface.setTitle("Othello");
+  tablero = new Tablero();
+  tablero.showAvailable();
 }
 
-/** Metodo que dibuja el tablero*/
 void draw() {
-  tablero.display();
+  surface.setCursor(0);
+  if (depth>0) {
+    showDetails();
+
+    // Verifica si el jugador tiene jugadas disponibles, si no, cambia el turno.
+    if (tablero.getAvailable().isEmpty() && tablero.turno==1) {
+      println("Jugador no puede tirar, pasa turno al Agente");
+      tablero.reset();
+      tablero.cambiarTurno();
+      tira();
+    }
+    // Verifica si el agente tiene jugadas disponibles, si no, cambia el turno.
+    if (tablero.getAvailable().isEmpty() && tablero.turno==-1) {
+      println("Agente no puede tirar, pasa turno al jugador");
+      tablero.reset();
+      tablero.cambiarTurno();
+      tablero.showAvailable();
+    }
+    // Turno del agente.
+    if (tablero.turno==-1) {
+      tira();
+    }
+    //--------------------------------------------------------------------------------------
+    // Aquí se considera el caso cuando ninguno de los dos puede tirar, se acaba el juego.
+    if (tablero.getAvailable().isEmpty()) {
+      if (tablero.turno == -1) {
+        tablero.reset();
+        tablero.cambiarTurno();
+        if (tablero.getAvailable().isEmpty()) {
+          println("Ni el jugador ni el agente pueden tirar. Juego terminado 1");
+          PFont f;
+          f = createFont("Serif.italic", 30);
+          textFont(f);
+          textAlign(CENTER);
+          fill(#DCF9D8);
+          text("Juego Terminado", width-150, 450);
+        }
+      } else {
+        tablero.reset();
+        tablero.cambiarTurno();
+        if (tablero.getAvailable().isEmpty()) {
+          println("Ni el jugador ni el agente pueden tirar. Juego terminado 1");
+          PFont f;
+          f = createFont("Serif.italic", 30);
+          textFont(f);
+          textAlign(CENTER);
+          fill(#DCF9D8);
+          text("Juego Terminado", width-150, 450);
+        }
+      }
+    }//------------------------------------------------------------------------------------------
+    tablero.display();
+  } else {
+    displayMenu();
+  }
 }
 
 /** Metodo que maneja los clicks en la pantalla*/
 void mouseClicked() {
-  int posX = mouseX/(width/tablero.dimension);
-  int posY = mouseY/(height/tablero.dimension);
-  //Si se quiere tirar en una casilla ocupada
-  if (tablero.mundo[posX][posY] != 2 && tablero.mundo[posX][posY] != 0) {
-    println("Casilla ocupada");
-    return;
-  }
-  //se debe realizar todos los metodos para poder pintarlos 
-  boolean n = checkNorth(posX, posY);
-  boolean s = checkSouth(posX, posY);
-  boolean e = checkEast(posX, posY);
-  boolean w = checkWest(posX, posY);
-  boolean sw = checkSouthWest(posX, posY);
-  boolean se = checkSouthEast(posX, posY);
-  boolean nw = checkNorthWest(posX, posY);
-  boolean ne = checkNorthEast(posX, posY);
-  
-  if (n || s || e || w || sw || se || nw || ne) {
-    tablero.mundo[posX][posY] = tablero.turno;
-    tablero.turno = tablero.turno*-1;
-  } else {
-    println("Movimiento invalido");
-  }
-}
-
-/** Metodo que verifica si el norte es un movimiento valido*/
-boolean checkNorth(int x, int y) {
-  for (int i = y + 1; i < tablero.dimension; i++) {
-    if (tablero.mundo[x][i] == 0) {
-      return false;
-    }
-    if (tablero.mundo[x][i] == tablero.turno) {
-      if (tablero.mundo[x][i-1] == tablero.turno*-1) {
-        paintVertical(x, y, i);
-       return true;
-      }
+  if (tablero.turno == 1) {
+    int posX = mouseX/((width-300)/tablero.dimension);
+    int posY = mouseY/(height/tablero.dimension);
+    println("Tiro en casilla"+"("+posX+","+posY+")");
+    if (tablero.canPlay(posX, posY)) {
+      tablero.setFicha(posX, posY);
+      tablero.paint(posX, posY);
+      tablero.reset();
+      tablero.cambiarTurno();
+    } else {
+      println("Movimiento invalido");
     }
   }
-  return false;
+  tablero.reset();
+  tablero.printTablero();
+  tablero.showAvailable();
 }
 
-/** Metodo que verifica si el sur es un movimiento valido*/
-boolean checkSouth(int x, int y) {
-  if(y != 0 && tablero.mundo[x][y-1] == tablero.turno){
-     return false;
-  } 
-  for (int i = y - 1; i > 0; i--) {
-    if (tablero.mundo[x][i] == 0) {
-      return false;
-    }
-    if (tablero.mundo[x][i] == tablero.turno) {
-      if (tablero.mundo[x][i+1] == tablero.turno*-1) {
-         paintVertical(x, y, i);
+/**Metodo para que tire el agente*/
+public void tira() {
+  Agente ag1 = new Agente(tablero);
+  ag1.calculaArbol(tablero.turno, ag1.arbolDecision, depth);
+  Pair p = ag1.miniMax(ag1.arbolDecision);
+  println("el agente tiro en " + p);
+  tablero.canPlay(p.first(), p.second());
+  tablero.setFicha(p.first(), p.second());
+  tablero.paint(p.first(), p.second());
+  tablero.reset();
+  tablero.cambiarTurno();
+  tablero.printTablero();
+  tablero.showAvailable();
+}
 
-         return true;
-      }
+
+
+/**
+ Muestra la puntuación del juego.
+ **/
+void score() {
+  int count=0;
+  int count2=0;
+  for (int i = 0; i < tablero.dimension; i++) {
+    for (int j = 0; j < tablero.dimension; j++) {
+      if (tablero.mundo[i][j] == 1)
+        fichas1++;
+      if (tablero.mundo[i][j] == -1)
+        fichas2++;
+      if (tablero.mundo[i][j] == 0)
+        count++;
+      if (tablero.mundo[i][j] == 3)
+        count2++;
     }
   }
-  return false;
-}
-
-/** Metodo que verifica si el oeste es un movimiento valido*/
-boolean checkWest(int x, int y) {
-  if(x != 0 && tablero.mundo[x-1][y] == tablero.turno){
-   return false;
-  }  
-  for (int i = x - 1; i > 0; i--) {
-    if (tablero.mundo[i][y] == 0) {
-      return false;
-    }
-    if (tablero.mundo[i][y] == tablero.turno) {
-      if (tablero.mundo[i+1][y] == tablero.turno*-1) {
-        paintHorizontal(y, x, i);
-       return true;
-      }
-    }
-  }
-  return false;
-}
-
-/** Metodo que verifica si el este es un movimiento valido*/
-boolean checkEast(int x, int y) {
-  if(x+1 != tablero.dimension && tablero.mundo[x+1][y] == tablero.turno){
-   return false;
-  }  
-  for (int i = x + 1; i < tablero.dimension; i++) {
-    if (tablero.mundo[i][y] == 0) {
-      return false;
-    }
-    if (tablero.mundo[i][y] == tablero.turno) {
-      if (tablero.mundo[i-1][y] == tablero.turno*-1) {
-        paintHorizontal(y, x, i);
-       return true;
-      }
-    }
-  }
-  return false;
-}
-
-/** Metodo que verifica si el noroeste es un movimiento valido*/
-boolean checkNorthWest(int x, int y) {
-    for (int j = y - 1, i = x - 1; j > 0 && i > 0; j--, i--) {
-            if (tablero.mundo[i][j] == 0) {
-                return false;
-            }
-            if (tablero.mundo[i][j] == tablero.turno) {
-                if (tablero.mundo[i+1][j+1] == tablero.turno*-1) {                
-                   paintNWSE(x, y, i, j);
-                    return true;
-                }
-            }
-    }
-    return false;
-}
-
-/** Metodo que verifica si el sueroeste es un movimiento valido*/
-boolean checkSouthWest(int x, int y) {
-    for (int j = y + 1, i = x - 1; j < tablero.dimension && i > 0; j++, i--) {
-            if (tablero.mundo[i][j] == 0) {
-                return false;
-            }
-            if (tablero.mundo[i][j] == tablero.turno) {
-                if (tablero.mundo[i+1][j-1] == tablero.turno*-1) {
-                   paintNESW(x, y, i, j);
-                    return true;
-                }
-            }
-    }
-    return false;
-}
-
-/** Metodo que verifica si el noreste es un movimiento valido*/
-boolean checkNorthEast(int x, int y) {
-    for (int j = y - 1, i = x + 1; j > 0 && i < tablero.dimension; j--, i++) {
-            if (tablero.mundo[i][j] == 0) {
-                return false;
-            }
-            if (tablero.mundo[i][j] == tablero.turno) {
-                if (tablero.mundo[i-1][j+1] == tablero.turno*-1) {
-                   paintNESW(x, y, i, j);
-                    return true;
-                }
-            }
-    }
-    return false;
-}
-
-/** Metodo que verifica si el sureste es un movimiento valido*/
-boolean checkSouthEast(int x, int y) {
-    for (int j = y + 1, i = x + 1; j < tablero.dimension && i < tablero.dimension; j++, i++) {
-            if (tablero.mundo[i][j] == 0) {
-                return false;
-            }
-            if (tablero.mundo[i][j] == tablero.turno) {
-                if (tablero.mundo[i-1][j-1] == tablero.turno*-1) {
-                   paintNWSE(x, y, i, j);
-                    return true;
-                }
-            }
-        
-    }
-    return false;
-}
-
-/**Metodo que cambia el color de las fichas que cambian de color (que se flippean)*/
-void paintVertical(int x, int a, int b){
-  for(int i = min(a, b); i <= max(a, b); i++){
-    tablero.mundo[x][i] = tablero.turno;
+  if (count==0 && count2 ==0) {
+    PFont f;
+    f = createFont("Serif.italic", 30);
+    textFont(f);
+    textAlign(CENTER);
+    fill(#DCF9D8);
+    text("Juego Terminado", width-150, 450);      
+    stop();
   }
 }
 
-/**Metodo que cambia el color de las fichas que cambian de color (que se flippean)*/
-void paintHorizontal(int y, int a, int b){
-  for(int i = min(a, b); i <= max(a, b); i++){
-    tablero.mundo[i][y] = tablero.turno;
-  }
+/**Muestra los detalles del juego**/
+void showDetails() {
+  background(77, 132, 75);
+  score();
+  PFont f;
+  f = createFont("Serif.italic", 50);
+  textFont(f);
+  textAlign(CENTER);
+  fill(77, 132, 75);
+  rect(width-290, 110, 280, 50);
+  fill(#00B3FF);
+  text("Marcador", width-150, 100);
+  fill(0);
+  text(fichas1, width-200, 150);
+  fill(255);
+  text(fichas2, width-100, 150);
+  fill(#DCF9D8);
+  text("Turno", width-150, 300);
+  if (tablero.turno==1)
+    fill(0);
+  else
+    fill(255);
+  ellipse(width-150, 350, 40, 40);
+  fichas1=fichas2=0;
 }
 
-/**Metodo que cambia el color de las fichas que cambian de color (que se flippean)*/
-void paintNWSE(int a, int b, int x, int y){ //pinta noroeste y sureste
-  for (int i = min(a, x), j = min(b, y); i < max(a, x) && j < max(b, y); j++, i++) {
-    tablero.mundo[i][j] = tablero.turno;
+/*Menú Principal*/
+void displayMenu() {
+  if (mouseX < width-300) {
+    tablero= null;
+    tablero = new Tablero();
   }
-}
+  PFont f;
+  fill(0);
+  f = createFont("Serif.italic", 80);
+  textFont(f);
+  textAlign(CENTER);
+  text("Othello", width/3, height/2);
+  f = createFont("Serif.italic", 20);
+  textFont(f);
+  color fondo = color(0);
+  fill(fondo);
+  float widthButton=width-220;
+  rect(width-300, 0, width, height);                                                     
+  fill(110);                                                                  
+  rect(widthButton, height/3, 150, height/20);
+  fill(255);
+  text("Principiante", widthButton+80, (height/3)+(height/30));
+  fill(110);
+  rect(widthButton, height/3*1.5, 150, height/20);
+  fill(255);
+  text("Intermedio", widthButton+80, (height/3*1.5)+(height/30));
+  fill(110);
+  rect(widthButton, height/3*2, 150, height/20);
+  fill(255);
+  text("Experto", widthButton+80, (height/3*2)+(height/30));
 
-/**Metodo que cambia el color de las fichas que cambian de color (que se flippean)*/
-void paintNESW(int a, int b, int x, int y){//Pinta noreste y suroeste
-  for (int i = max(a, x), j = min(b, y); i > min(a, x) && j < max(b, y); j++, i--) {
-    tablero.mundo[i][j] = tablero.turno;
+  if (mouseX >= widthButton && mouseX<=widthButton+150 &&
+    mouseY >= height/3 && mouseY<= (height/3)+(height/20)) {
+    surface.setCursor(13);
+    fill(52, 173, 217);                                                            
+    rect(widthButton, height/3, 150, height/20);
+    fill(0);
+    text("Principiante", widthButton+80, (height/3)+(height/30));
   }
-}
+  if (mouseX >= widthButton && mouseX<=widthButton+150 &&
+    mouseY >= height/3*1.5 && mouseY<= (height/3*1.5)+(height/20)) {
+    surface.setCursor(13);
+    fill(52, 173, 217);                                                                   
+    rect(widthButton, height/3*1.5, 150, height/20);
+    fill(0);
+    text("Intermedio", widthButton+80, (height/3*1.5)+(height/30));
+  }
+  if (mouseX >= widthButton && mouseX<=widthButton+150 &&
+    mouseY >= height/3*2 && mouseY<= (height/3*2)+(height/20)) {
+    surface.setCursor(13);
+    fill(52, 173, 217);                                                                   
+    rect(widthButton, height/3*2, 150, height/20);
+    fill(0);
+    text("Experto", widthButton+80, (height/3*2)+(height/30));
+  }
+
+  if (mousePressed && mouseX >= widthButton && mouseX<=widthButton+150 &&
+    mouseY >= height/3 && mouseY<= (height/3)+(height/20)) {
+    depth=1;
+  }
+  if (mousePressed && mouseX >= widthButton && mouseX<=widthButton+150 &&
+    mouseY >= height/3*1.5 && mouseY<= (height/3*1.5)+(height/20)) {
+    depth=3;
+  }
+  if (mousePressed && mouseX >= widthButton && mouseX<=widthButton+150 &&
+    mouseY >= height/3*2 && mouseY<= (height/3*2)+(height/20)) {
+    depth=5;
+  }
+  fill(255);
+  f = createFont("Serif.italic", 35);
+  textFont(f);
+  text("Selecciona Nivel", width-150, 100);
+}  

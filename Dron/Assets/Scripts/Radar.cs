@@ -7,45 +7,63 @@ using UnityEngine;
 // Las comprobaciones y métodos son análogos al componente (script) de Sensores.
 public class Radar : MonoBehaviour
 {
-    private bool cercaDeBasura;
+    private bool BaseDeCarga;
     private bool cercaDePared;
+    private bool cercaObjetivo;
 
     void OnTriggerEnter(Collider other){
-        if(other.gameObject.CompareTag("Basura")){
-            cercaDeBasura = true;
+        if(other.gameObject.CompareTag("BaseDeCarga")){
+            BaseDeCarga = true;
         }
         if(other.gameObject.CompareTag("Pared")){
             cercaDePared = true;
+        }
+        if (other.gameObject.CompareTag("Persona"))
+        {
+            cercaObjetivo = true;
         }
     }
 
     void OnTriggerStay(Collider other){
-        if(other.gameObject.CompareTag("Basura")){
-            cercaDeBasura = true;
+        if(other.gameObject.CompareTag("BaseDeCarga")){
+            BaseDeCarga = true;
         }
         if(other.gameObject.CompareTag("Pared")){
             cercaDePared = true;
         }
+        if (other.gameObject.CompareTag("Persona"))
+        {
+            cercaObjetivo = true;
+        }
     }
 
     void OnTriggerExit(Collider other){
-        if(other.gameObject.CompareTag("Basura")){
-            cercaDeBasura = false;
+        if(other.gameObject.CompareTag("BaseDeCarga")){
+            BaseDeCarga = false;
         }
         if(other.gameObject.CompareTag("Pared")){
             cercaDePared = false;
         }
+        if (other.gameObject.CompareTag("Persona"))
+        {
+            cercaObjetivo = false;
+        }
     }
 
-    public bool CercaDeBasura(){
-        return cercaDeBasura;
+    public bool CercaDeBaseDeCarga(){
+        return BaseDeCarga;
     }
 
     public bool CercaDePared(){
         return cercaDePared;
     }
 
+    public bool CercaPersona()
+    {
+        return cercaObjetivo;
+    }
+
     public void setCercaDeBasura(bool value){
-        cercaDeBasura = value;
+        BaseDeCarga = value;
     }
 }
