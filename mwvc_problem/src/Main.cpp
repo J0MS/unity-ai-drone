@@ -25,23 +25,22 @@ int seed = 100;
 int n, m, u, v, w;
 //cin >> n >> m;
 
+// Check if input data file exist
 bool is_file_exist(const char *fileName){
     std::ifstream infile(fileName);
     return infile.good();
 }
 
+// Get data, line by line for stdin
 void PL(std::istream& is) {
    string line;
-
     while(is) {
         is >> n >> m;
-        //cout<<"Type line now";
         if(std::getline(is,line)) {
             // supposed to Parsing string into words and translate//
             //but just reading back input for now//
             //is >> n >> m;
             //cout<<n<< m <<endl;
-
         }
     }
 }
@@ -49,7 +48,6 @@ void PL(std::istream& is) {
 
 int main(int argc, char **argv){
   using namespace clara;
-
 
     //------------------------------------------Configure flags & command line arguments.--------------------------------
     auto arguments = clara::detail::Help(showHelp)
@@ -85,11 +83,10 @@ int main(int argc, char **argv){
     using namespace std;
     printf("\n");
     printf("%-25s%-25s", " " ,"Ant Colony Optimization Algorithm.\n");
-    printf("Version: %s | @J0MS \n",VERSION);
+    printf("Version: %s |  \n",VERSION);
     printf("\n");
     printf("Current problem: MWVC\n");
 
-/*
     if (is_file_exist(argv[1])) {
       inFile.open(argv[1]);
       instance = &inFile;
@@ -98,14 +95,12 @@ int main(int argc, char **argv){
       cout << "Fatal error: File does not exist!." <<endl;
       return -1;
     }
-*/
 
 
-
+    // Get start time
     auto gstart = chrono::steady_clock::now();
-    //int seed = 100;
-    //int n, m, u, v, w;
     cin >> n >> m;
+    // ACO object instance and  weight/edge configuration
     ACO aco(n, m);
     for(int i = 0; i < n; i++) {
       cin >> w;
@@ -115,29 +110,16 @@ int main(int argc, char **argv){
       cin >> u >> v;
       aco.setEdge(u, v);
     }
+    // Random number seed generation
     aco.randomEngineGenerator(seed);
     printf("\nSeed: %d\n", seed);
+    // Print candidate solution
     pair<unordered_set<int>, int> currentSolution = aco.getSolution();
     for (int x : currentSolution.first){
       printf("%d, ", x);
     }
 
-
-/*
-
-    int n, m, u, v, w;
-    string text;
-    ifstream ifs(argv[1]);
-
-    while(!ifs.eof()){
-      getline(ifs,text);
-      stoi(text) >> n >> m;
-      cout << n << m;
-      //cout << "" << text << "\n" ;
-    }
-
-*/
-
+    // Print current solution cost
 printf("\nCost: %d\n", currentSolution.second);
 
 
