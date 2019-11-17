@@ -111,7 +111,7 @@ void ACO::execIteration(){
     }
     else{
       this->globalPheromone[j] = (1 - EVAPORATION_RATE) * this->globalPheromone[j];
-      //printf("%d %2.6f\n", j, globalPheromone[j]);
+      printf("Iteration %d %s %d %s %2.6f\n",this->improveAttempts, "vertex",j, "pheromone:",globalPheromone[j]);
     }
   }
   // printf("Iteration %d %s %s %2.6f\n",this->improveAttempts, "complete", "pheromone:",globalPheromone);
