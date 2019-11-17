@@ -87,18 +87,19 @@ int main(int argc, char **argv){
     printf("\n");
     printf("Current problem: MWVC\n");
 
-    if (is_file_exist(argv[1])) {
-      inFile.open(argv[1]);
-      instance = &inFile;
-      cout << "Succesfully loaded: "<< argv[1] <<endl;
-    }else{
-      cout << "Fatal error: File does not exist!." <<endl;
-      return -1;
-    }
+    // TODO: Non operative block -------------------
+    // if (is_file_exist(argv[1])) {
+    //   inFile.open(argv[1]);
+    //   instance = &inFile;
+    //   cout << "Succesfully loaded: "<< argv[1] <<endl;
+    // }else{
+    //   cout << "Fatal error: File does not exist!." <<endl;
+    //   return -1;
+    // }
+    // ----------------------------------------------
 
-
-    // Get start time
-    auto gstart = chrono::steady_clock::now();
+    // TODO: Get start time
+    // auto gstart = chrono::steady_clock::now();
     cin >> n >> m;
     // ACO object instance and  weight/edge configuration
     ACO aco(n, m);

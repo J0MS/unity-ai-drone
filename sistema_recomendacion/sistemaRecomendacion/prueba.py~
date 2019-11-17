@@ -1,0 +1,84 @@
+import pandas as pd
+import json
+import gzip
+import numpy as np
+
+
+
+def parse(path):
+  g = gzip.open(path, 'rb')
+  for l in g:
+    yield json.loads(l)
+
+def getDF(path):
+  i = 0
+  df = {}
+  for d in parse(path):
+    df[i] = d
+    i += 1
+  return pd.DataFrame.from_dict(df, orient='index')
+
+
+def crear_tabla_de_datos():
+  df = getDF("Software_5.json.gz")
+  df.drop(['verified', 'reviewTime', 'style', 'reviewText', 'summary', 'unixReviewTime', 'vote', 'image'], axis='columns', inplace=True)
+
+  itemRatings =  df.pivot_table(index=['reviewerID'], columns=['asin'], values='overall')
+  return itemRatings
+
+def crear_matriz_correlacion(itemRatings):
+
+  corrMatrix = itemRatings.corr(method='pearson', min_periods=3)
+  return corrMatrix
+
+
+def get_user_ratings(user, itemRatings):
+  #user = A38NELQT98S4H8
+  #Usuario de prueba, en este caso el numero 2(cambiar para pruebas), obtenemos sus valoraciones
+  myRatings = itemRatings.loc[user].dropna()
+  #print("Valoraciones usuario:")
+  userRatings = myRatings.sort_values(ascending=False)#se obtienen las valoraciones
+  #print(pd.DataFrame({'Producto':"https://www.amazon.com/dp/"+userRatings.index, 'Calificacion':userRatings.values}))
+  return userRatings
+
+itemRatings = crear_tabla_de_datos()
+corrMatrix = crear_matriz_correlacion(itemRatings)
+myRatings = get_user_ratings('A38NELQT98S4H8', itemRatings)
+
+print(myRatings)
+#aqui se almacanaran los posibles valores
+posiblesSimilares = pd.Series()
+
+# Recorremos los productos valorados por el usuario  
+for i in range(0, len(myRatings.index)):  
+    # Obtenemos productos similares a este que el usuario ha puntuado  
+    sims = corrMatrix[myRatings.index[i]].dropna()
+
+    # Multiplicamos el score de correlacion por la puntuación asignada por el usuario  
+    sims = sims.map(lambda x: x * myRatings[i])
+
+    # Añadimos el prodcuto y la nueva puntuacion a nuestra lista de candidatos  
+    posiblesSimilares = posiblesSimilares.append(sims)
+
+# Agrupamos los resultados, ya que si una pelicula es parecida a dos de las  
+# que ha visto el usuario, aparecerá dos veces  
+# podríamos agrupar haciendo la media de puntuación, o como en este caso  
+# sumandolo, ya que si aparece dos veces será porque es una pelicula  
+# muy recomendable... y así saldrá la primera. Va en cuestión de gustos.
+
+posiblesSimilares = posiblesSimilares.groupby(posiblesSimilares.index).sum()
+
+# Finalmente filtramos todas aquellas peliculas que el usuario ya habia valorado  
+# puesto que no tiene sentido que se las recomendemos si ya las ha visto  
+# le decimos que ignore errores para evitar excepciones si hay problemas  
+# con el CharSet de los titulos  
+filtered = posiblesSimilares.drop(myRatings.index,errors='ignore')  
+a = filtered.sort_values(ascending=False)[:15]
+#a = df.sort_values(['similarity'], ascending=False)[:15] 
+print("Recomendaciones para el usuario:")
+
+
+print(pd.DataFrame({'Producto':"https://www.amazon.com/dp/"+a.index, 'Similitud':a.values}))
+
+
+

@@ -1,0 +1,74 @@
+import pandas as pd
+import json
+import gzip
+import numpy as np
+
+
+#Metodo que permite parseare un archivo json.gz
+def parse(path):
+  g = gzip.open(path, 'rb')
+  for l in g:
+    yield json.loads(l)
+
+#Metodo que convierte un json.gz a un dataframe de pandas
+def getDF(path):
+  i = 0
+  df = {}
+  for d in parse(path):
+    df[i] = d
+    i += 1
+  return pd.DataFrame.from_dict(df, orient='index')
+
+#Metodo que crea un dataframe de pandas el cual contendra los datos a utilizar, eliminando los datos del json que no interesan
+#solo nos quedamos con los datos del usuario y el codigo de producto asi como la puntuacion que le otorgo 
+def crear_tabla_de_datos():
+  #creamos un dataframe con todos los datos del json
+  df = getDF("Software_5.json.gz")
+
+  #eliminamos columnas no requeridas
+  df.drop(['verified', 'reviewTime', 'style', 'reviewText', 'summary', 'unixReviewTime', 'vote', 'image'], axis='columns', inplace=True)
+  
+  #creamos un dataframe donde cada renglon es un usuario, cada columna es un codigo de producto y en la interseccion se
+  #encuentra la calificacion que el usuario dio al producto (aparece NaN si el usuario no califico el producto
+  itemRatings =  df.pivot_table(index=['reviewerID'], columns=['asin'], values='overall')
+  return itemRatings
+
+#obtenemos la matriz de correlacion entre productos, utilizando el metodo de pearson
+#donde cada producto tiene al menos 2 calificaciones de usuarios distintos
+def crear_matriz_correlacion(itemRatings):
+  corrMatrix = itemRatings.corr(method='pearson', min_periods=2)
+  return corrMatrix
+
+#obtenemos los items que el usuario ha calificado, eliminando los que no tengan calificacion
+def get_user_ratings(user, itemRatings):
+  #obtenemos el renglon que corresponde al usuario y eliminamos las columnas que no tienen calificacion
+  userRatings = itemRatings.loc[user].dropna()
+  #ordenamos los datos
+  userRatings = userRatings.sort_values(ascending=False)
+  return userRatings
+
+
+#obtenemos las recomendaciones para el usuario
+def obtener_recomendaciones(user,itemRatings,corrMatrix):
+  myRatings = get_user_ratings(user, itemRatings)
+  #aqui se almacanaran los posibles valores
+  posiblesSimilares = pd.Series()
+
+  # Recorremos los productos valorados por el usuario  
+  for i in range(0, len(myRatings.index)):  
+    # Obtenemos productos similares a este que el usuario ha calificado  
+    sims = corrMatrix[myRatings.index[i]].dropna()
+    
+    # Multiplicamos el score de correlacion por la puntuación asignada por el usuario  
+    sims = sims.map(lambda x: x * myRatings[i])
+    
+    # Añadimos el prodcuto y la nueva puntuacion a nuestra lista de posibles recomendaciones  
+    posiblesSimilares = posiblesSimilares.append(sims)
+ 
+  # Finalmente filtramos todos los productos que el usuario ya habia valorado  
+  # puesto que no tiene sentido que se las recomendemos si ya los ha comprado y calificado  
+  # le decimos que ignore errores para evitar excepciones si hay problemas  
+  # con el nombre de los titulos  
+  filtered = posiblesSimilares.drop(myRatings.index,errors='ignore')  
+  recomendaciones = filtered.sort_values(ascending=False)[:15]
+  return recomendaciones

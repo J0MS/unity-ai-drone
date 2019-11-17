@@ -1,0 +1,66 @@
+from tkinter import *
+from tkinter import scrolledtext
+from prueba import *
+import webbrowser
+import tkHyperlinkManager
+from functools import partial
+
+itemRatings = crear_tabla_de_datos()
+corrMatrix = crear_matriz_correlacion(itemRatings)
+
+window = Tk()
+window.geometry('1024x400')
+window.title("Sistema de recomendacion de productos de software en Amazon")
+head = Label(window, text="Ingresa el ID de un usuario (se encuentran en usuarios.txt): ")
+head.grid(column=0, row=0)
+user = Entry(window, width=30)
+user.grid(column=1, row=1)
+
+
+def clicked():
+    values.delete(1.0,END)
+    values.insert(INSERT, "       Producto                              Calificacion\n")
+    aux = get_user_ratings(user.get(), itemRatings)
+    res = pd.DataFrame({'Producto':"https://www.amazon.com/dp/"+aux.index, 'Calificacion':aux.values})
+    alto, ancho = res.shape
+    text = Text(values)
+    text.pack()
+    hyperlink = tkHyperlinkManager.HyperlinkManager(text)
+    for i in range(0, alto):
+        item = res['Producto'][i]
+        rating = res['Calificacion'][i]
+        text.insert(INSERT, "Stack Overflow",
+            hyperlink.add(partial(webbrowser.open, "http://stackoverflow.com")))
+
+        
+btn = Button(window, text="Click Me", command=clicked)
+btn.grid(column=1, row=2)
+
+values = scrolledtext.ScrolledText(window,width=80,height=5)
+values.grid(column=1, row=3)
+
+window.mainloop()
+
+"""
+root = Tk()
+root.title("hyperlink-1")
+
+values = scrolledtext.ScrolledText(root,width=80,height=5)
+values.pack()
+
+text = Text(values)
+text.pack()
+
+hyperlink = tkHyperlinkManager.HyperlinkManager(text)
+
+text.insert(INSERT, "Hello, ")
+text.insert(INSERT, "Stack Overflow",
+            hyperlink.add(partial(webbrowser.open, "http://stackoverflow.com")))
+text.insert(INSERT, "!\n\n")
+text.insert(INSERT, "And here's ")
+text.insert(INSERT, "a search engine",
+            hyperlink.add(partial(webbrowser.open, "http://duckduckgo.com")))
+text.insert(INSERT, ".")
+
+mainloop()
+"""
