@@ -107,13 +107,14 @@ void ACO::execIteration(){
     if (this->bestSolution.find(j) != this->bestSolution.end()){
       this->globalPheromone[j] = (1 - EVAPORATION_RATE) * this->globalPheromone[j] + (EVAPORATION_RATE * (1.0 / this->minimumCost));
       //printf("Node %d %2.6f in cover graph\n", j, globalPheromone[j]);
+      printf("Iteration %d %s %d %s %2.6f\n",this->improveAttempts, "vertex",j, "pheromone:",globalPheromone[j]);
     }
     else{
       this->globalPheromone[j] = (1 - EVAPORATION_RATE) * this->globalPheromone[j];
       //printf("%d %2.6f\n", j, globalPheromone[j]);
     }
   }
-  printf("Iteration %d %s\n",this->improveAttempts, "complete" );
+  // printf("Iteration %d %s %s %2.6f\n",this->improveAttempts, "complete", "pheromone:",globalPheromone);
 }
 
 /*Move ants to next vertex*/
